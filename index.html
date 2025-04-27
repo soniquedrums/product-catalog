@@ -10,16 +10,14 @@
       const urlParams = new URLSearchParams(window.location.search);
       const selectedYear = urlParams.get('year'); // Get the selected year from the URL
 
-      // If no year is selected, return an error
       if (!selectedYear) {
         console.error('Catalog year is missing.');
         return;
       }
 
       const pageCountMapping = {
-        '2025': 24, // 2025 catalog has 30 pages
-        '2024': 16, // 2024 catalog has 24 pages
-        // Add more years and their respective page counts as needed
+        '2025': 24,
+        '2024': 16,
       };
 
       const totalPages = pageCountMapping[selectedYear];
@@ -29,22 +27,24 @@
       }
 
       const imagePrefix = `https://soniquedrums.github.io/product-catalog/assets/page-images/${selectedYear}/page_`;
-      const version = '?'; // The query string version part
+      const version = '?';
 
       const pages = [];
       for (let i = 1; i <= totalPages; i++) {
         const img = new Image();
-        img.src = `${imagePrefix}${i}.png${version}`; // Construct image path dynamically
+        img.src = `${imagePrefix}${i}.png${version}`;
         pages.push(img);
       }
 
       const flipbookElement = document.getElementById('flipbook');
       if (flipbookElement) {
         if (typeof St !== 'undefined' && St.PageFlip) {
+          const aspectRatio = 816 / 1056; // Aspect ratio of the images
+
           let pageFlip = new St.PageFlip(flipbookElement, {
             size: 'fixed',
-            width: window.innerWidth * 0.9, // 90% of viewport width
-            height: window.innerHeight * 0.8, // 80% of viewport height
+            width: window.innerWidth * 0.9,  // 90% of viewport width
+            height: window.innerHeight * 0.8,  // 80% of viewport height
             minWidth: 612,
             minHeight: 792,
             maxWidth: 816,
@@ -67,6 +67,10 @@
 
           // Dynamically resize PageFlip when the window is resized
           window.addEventListener('resize', () => {
+            const newWidth = window.innerWidth * 0.9;  // 90% of viewport width
+            const newHeight = newWidth / aspectRatio; // Maintain the aspect ratio
+
+            pageFlip.resize(newWidth, newHeight);
             pageFlip.updateFromClient();
           });
 
@@ -122,7 +126,6 @@
     }
 
     @media (max-width: 768px) {
-      /* Adjust for smaller devices */
       #flipbook {
         height: calc(100vh - 60px); /* Keep it fitting on small screens */
       }
