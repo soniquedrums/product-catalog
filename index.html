@@ -39,11 +39,10 @@
       const flipbookElement = document.getElementById('flipbook');
       if (flipbookElement) {
         if (typeof St !== 'undefined' && St.PageFlip) {
-          // Initialize PageFlip
           const pageFlip = new St.PageFlip(flipbookElement, {
             size: 'fixed',
-            width: window.innerWidth * 0.8, // Adjust width for desktop (80% of viewport width)
-            height: window.innerHeight * 0.75, // Adjust height for desktop (75% of viewport height)
+            width: window.innerWidth * 0.8, // 80% of the window width
+            height: window.innerHeight * 0.75, // 75% of the window height
             minWidth: 612,
             minHeight: 792,
             maxWidth: 816,
@@ -59,9 +58,9 @@
 
           pageFlip.loadFromImages(pages.map(page => page.src));
 
-          // Dynamically resize PageFlip when the window is resized
+          // Handle window resize to adjust pageFlip dimensions
           window.addEventListener('resize', () => {
-            const aspectRatio = 816 / 1056;
+            const aspectRatio = 816 / 1056; // Image aspect ratio
             const windowWidth = window.innerWidth * 0.8;
             const windowHeight = window.innerHeight * 0.75;
 
@@ -119,7 +118,7 @@
     #flipbook img {
       width: 100%;
       height: 100%;
-      object-fit: contain; /* Ensure images are not stretched */
+      object-fit: contain; /* Ensure images maintain aspect ratio */
     }
 
     #controls {
