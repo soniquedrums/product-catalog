@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>
   <script>
-    // Ensure PageFlip is loaded before initializing flipbook
     document.addEventListener('DOMContentLoaded', function () {
       const urlParams = new URLSearchParams(window.location.search);
       const selectedYear = urlParams.get('year'); // Get the selected year from the URL
@@ -17,14 +16,12 @@
         return;
       }
 
-      // Page count mapping for each year (you can adjust this based on the number of pages each catalog has)
       const pageCountMapping = {
         '2025': 24, // 2025 catalog has 30 pages
         '2024': 16, // 2024 catalog has 24 pages
         // Add more years and their respective page counts as needed
       };
 
-      // Get total pages for the selected catalog year
       const totalPages = pageCountMapping[selectedYear];
       if (!totalPages) {
         console.error('No page count found for the selected year.');
@@ -41,41 +38,39 @@
         pages.push(img);
       }
 
-      // Ensure the #flipbook element exists before initializing PageFlip
       const flipbookElement = document.getElementById('flipbook');
       if (flipbookElement) {
         if (typeof St !== 'undefined' && St.PageFlip) {
-          let pageFlip = new St.PageFlip(
-            flipbookElement,
-            {
-              width: 816,
-              height: 1056,
-              size: 'fixed',      // <<< very important
-              minWidth: 320,       // minimum width for mobile
-              minHeight: 480,      // minimum height for mobile
-              maxWidth: 1632,      // double the image size if needed
-              maxHeight: 2112,     
-              showCover: true,
-              flippingTime: 700,
-              mobileScrollSupport: true,
-              useMouseEvents: true,
-              autoSize: true,     // <<< very important
-              clickEventForward: true,
-              usePortrait: true,
-              startZIndex: 0,
-              maxShadowOpacity: 0.5,
-              showPageCorners: true,
-            }
-          );
+          let pageFlip = new St.PageFlip(flipbookElement, {
+            size: 'fixed',
+            width: window.innerWidth * 0.9, // 90% of viewport width
+            height: window.innerHeight * 0.8, // 80% of viewport height
+            minWidth: 612,
+            minHeight: 792,
+            maxWidth: 816,
+            maxHeight: 1056,
+            showCover: true,
+            flippingTime: 700,
+            mobileScrollSupport: true,
+            useMouseEvents: true,
+            autoSize: false,
+            clickEventForward: true,
+            usePortrait: true,
+          });
 
           pageFlip.loadFromImages(pages.map(page => page.src));
-          
-          // Force PageFlip to re-calculate sizes
+
+          // Force PageFlip to update after images load
           window.addEventListener('load', () => {
             pageFlip.updateFromClient();
           });
 
-          // Setup slider
+          // Dynamically resize PageFlip when the window is resized
+          window.addEventListener('resize', () => {
+            pageFlip.updateFromClient();
+          });
+
+          // Setup page slider
           const pageSlider = document.getElementById('pageSlider');
           pageSlider.max = pages.length;
 
@@ -95,13 +90,22 @@
     });
   </script>
   <style>
-    html, body {
+    body, html {
       margin: 0;
       padding: 0;
       height: 100%;
+      background: #f0f0f0;
       overflow: hidden;
     }
-    
+
+    #flipbook {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      position: relative;
+      background: #ffffff;
+    }
+
     #controls {
       height: 60px;
       background: #333;
@@ -112,24 +116,16 @@
       padding: 0 20px;
       box-sizing: border-box;
     }
-    
+
     #pageSlider {
       width: 70%;
     }
-    
-    #flipbook {
-      width: 100vw;
-      height: calc(100vh - 60px);
-      background: #fff;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    #flipbook canvas {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      display: block;
+
+    @media (max-width: 768px) {
+      /* Adjust for smaller devices */
+      #flipbook {
+        height: calc(100vh - 60px); /* Keep it fitting on small screens */
+      }
     }
   </style>
 </head>
