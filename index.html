@@ -10,22 +10,26 @@
   <script>
     window.onload = function() {
       const url = 'https://cdn.shopify.com/s/files/1/0700/4844/8811/files/Product_Catalog_4.pdf';
+      
+      console.log("PDF URL:", url); // Debugging PDF URL
 
       pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-      let pageFlip;  // Declare this as let instead of const to allow reassigning it later.
+      let pageFlip; // Declare as let
       const pages = [];
 
       // Show loading spinner
       document.getElementById('loadingSpinner').style.display = 'block';
 
-      // Load the PDF and process the pages
+      // Load the PDF
       pdfjsLib.getDocument(url).promise.then(async function(pdf) {
+        console.log("PDF loaded successfully, pages:", pdf.numPages); // Debugging PDF load
+
         const totalPages = pdf.numPages;
 
         for (let i = 1; i <= totalPages; i++) {
           const page = await pdf.getPage(i);
-          const viewport = page.getViewport({ scale: 4 }); // Higher resolution scale
+          const viewport = page.getViewport({ scale: 4 });
           const canvas = document.createElement('canvas');
           const context = canvas.getContext('2d');
 
@@ -44,48 +48,130 @@
         }
 
         // Initialize the flipbook only once all pages are loaded
-        pageFlip = new PageFlip(
-          document.getElementById('flipbook'),
-          {
-            width: 800,
-            height: 1000,
-            size: 'stretch',
-            minWidth: 315,
-            minHeight: 400,
-            maxWidth: 2000,
-            maxHeight: 3000,
-            showCover: true,
-            flippingTime: 700,
-            mobileScrollSupport: true,
-            useMouseEvents: true,
-            autoSize: true,
-            clickEventForward: true,
-            usePortrait: true,
-          }
-        );
+        if (pages.length > 0) {
+          pageFlip = new PageFlip(
+            document.getElementById('flipbook'),
+            {
+              width: 800,
+              height: 1000,
+              size: 'stretch',
+              minWidth: 315,
+              minHeight: 400,
+              maxWidth: 2000,
+              maxHeight: 3000,
+              showCover: true,
+              flippingTime: 700,
+              mobileScrollSupport: true,
+              useMouseEvents: true,
+              autoSize: true,
+              clickEventForward: true,
+              usePortrait: true,
+            }
+          );
 
-        // Load the pages into the flipbook
-        pageFlip.loadFromImages(pages.map(page => page.src));
+          pageFlip.loadFromImages(pages.map(page => page.src));
 
-        // Hide the loading spinner when loading is complete
-        document.getElementById('loadingSpinner').style.display = 'none';
+          // Hide the loading spinner when loading is complete
+          document.getElementById('loadingSpinner').style.display = 'none';
 
-        // Setup the page slider
-        const pageSlider = document.getElementById('pageSlider');
-        pageSlider.max = pages.length;
+          // Setup the page slider
+          const pageSlider = document.getElementById('pageSlider');
+          pageSlider.max = pages.length;
 
-        pageSlider.addEventListener('input', (e) => {
-          pageFlip.flip(parseInt(e.target.value) - 1);
-        });
+          pageSlider.addEventListener('input', (e) => {
+            pageFlip.flip(parseInt(e.target.value) - 1);
+          });
 
-        pageFlip.on('flip', (e) => {
-          pageSlider.value = e.data + 1;
-        });
+          pageFlip.on('flip', (e) => {
+            pageSlider.value = e.data + 1;
+          });
 
+        } else {
+          console.error('No pages loaded. Check PDF.');
+          document.getElementById('loadingSpinner').style.display = 'none'; // Hide spinner on error
+        }
       }).catch(function(error) {
         console.error('Error loading PDF:', error);
         document.getElementById('loadingSpinner').style.display = 'none'; // Hide spinner on error
       });
 
       // Fullscreen button functionality
-      const fullscreenBtn = document.getElementById
+      const fullscreenBtn = document.getElementById('fullscreenBtn');
+      fullscreenBtn.addEventListener('click', () => {
+        const elem = document.documentElement;
+        if (!document.fullscreenElement) {
+          elem.requestFullscreen().catch(err => {
+            alert(`Error attempting to enable fullscreen mode: ${err.message}`);
+          });
+        } else {
+          document.exitFullscreen();
+        }
+      });
+    }
+  </script>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #f0f0f0;
+      overflow: hidden;
+    }
+    #flipbook {
+      width: 100%;
+      height: calc(100% - 60px);
+      overflow: hidden;
+      position: relative;
+      background: #ffffff;
+    }
+    #controls {
+      height: 60px;
+      background: #333;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      box-sizing: border-box;
+    }
+    #pageSlider {
+      width: 70%;
+    }
+    #fullscreenBtn {
+      background: #555;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 5px;
+    }
+    #fullscreenBtn:hover {
+      background: #777;
+    }
+
+    /* Loading Spinner Styles */
+    #loadingSpinner {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      color: #333;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Loading Spinner -->
+<div id="loadingSpinner">Loading... 0%</div>
+
+<div id="controls">
+  <input type="range" id="pageSlider" min="1" value="1">
+  <button id="fullscreenBtn">Fullscreen</button>
+</div>
+<div id="flipbook"></div>
+
+</body>
+</html>
