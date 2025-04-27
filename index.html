@@ -97,10 +97,14 @@
     }
     #flipbook {
       width: 100%;
-      height: calc(100% - 60px);
-      overflow: hidden;
-      position: relative;
+      max-width: 816px;
+      height: auto;
+      aspect-ratio: 816 / 1056;
+      margin: 0 auto;
       background: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
 
       /* Enable anti-aliasing for text */
       -webkit-font-smoothing: antialiased;
@@ -126,6 +130,13 @@
     #pageSlider {
       width: 70%;
     }
+  /* >>> Mobile-specific adjustments <<< */
+  @media (max-width: 768px) {
+    #flipbook {
+      max-width: 95vw;
+      height: auto;
+    }
+  }
   </style>
 </head>
 <body>
