@@ -6,77 +6,68 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>
   <script>
+    // Ensure PageFlip is loaded before initializing flipbook
     document.addEventListener('DOMContentLoaded', function () {
       const urlParams = new URLSearchParams(window.location.search);
       const selectedYear = urlParams.get('year'); // Get the selected year from the URL
 
+      // If no year is selected, return an error
       if (!selectedYear) {
         console.error('Catalog year is missing.');
         return;
       }
 
+      // Page count mapping for each year (you can adjust this based on the number of pages each catalog has)
       const pageCountMapping = {
-        '2025': 24,
-        '2024': 16,
+        '2025': 24, // 2025 catalog has 30 pages
+        '2024': 16, // 2024 catalog has 24 pages
+        // Add more years and their respective page counts as needed
       };
 
+      // Get total pages for the selected catalog year
       const totalPages = pageCountMapping[selectedYear];
       if (!totalPages) {
         console.error('No page count found for the selected year.');
         return;
       }
 
-      const imagePrefix = `https://soniquedrums.github.io/product-catalog/assets/page-images/${selectedYear}/page_`;
-      const version = '?';
+      const imagePrefix = https://soniquedrums.github.io/product-catalog/assets/page-images/${selectedYear}/page_;
+      const version = '?'; // The query string version part
 
       const pages = [];
       for (let i = 1; i <= totalPages; i++) {
         const img = new Image();
-        img.src = `${imagePrefix}${i}.png${version}`;
+        img.src = ${imagePrefix}${i}.png${version}; // Construct image path dynamically
         pages.push(img);
       }
 
+      // Ensure the #flipbook element exists before initializing PageFlip
       const flipbookElement = document.getElementById('flipbook');
       if (flipbookElement) {
         if (typeof St !== 'undefined' && St.PageFlip) {
-          const pageFlip = new St.PageFlip(flipbookElement, {
-            size: 'fixed',
-            width: window.innerWidth * 0.8, // 80% of the window width
-            height: window.innerHeight * 0.75, // 75% of the window height
-            minWidth: 612,
-            minHeight: 792,
-            maxWidth: 816,
-            maxHeight: 1056,
-            showCover: true,
-            flippingTime: 700,
-            mobileScrollSupport: true,
-            useMouseEvents: true,
-            autoSize: false,
-            clickEventForward: true,
-            usePortrait: true,
-          });
+          let pageFlip = new St.PageFlip(
+            flipbookElement,
+            {
+              width: 816,
+              height: 1056,
+              size: 'stretch',
+              minWidth: 612,
+              minHeight: 792,
+              maxWidth: 816,
+              maxHeight: 1056,
+              showCover: true,
+              flippingTime: 700,
+              mobileScrollSupport: true,
+              useMouseEvents: true,
+              autoSize: false,
+              clickEventForward: true,
+              usePortrait: true,
+            }
+          );
 
           pageFlip.loadFromImages(pages.map(page => page.src));
 
-          // Handle window resize to adjust pageFlip dimensions
-          window.addEventListener('resize', () => {
-            const aspectRatio = 816 / 1056; // Image aspect ratio
-            const windowWidth = window.innerWidth * 0.8;
-            const windowHeight = window.innerHeight * 0.75;
-
-            let newWidth = windowWidth;
-            let newHeight = newWidth / aspectRatio;
-
-            if (newHeight > windowHeight) {
-              newHeight = windowHeight;
-              newWidth = newHeight * aspectRatio;
-            }
-
-            pageFlip.resize(newWidth, newHeight);
-            pageFlip.updateFromClient();
-          });
-
-          // Setup page slider
+          // Setup slider
           const pageSlider = document.getElementById('pageSlider');
           pageSlider.max = pages.length;
 
@@ -103,22 +94,22 @@
       background: #f0f0f0;
       overflow: hidden;
     }
-
     #flipbook {
       width: 100%;
-      height: 100%;
+      height: calc(100% - 60px);
       overflow: hidden;
       position: relative;
       background: #ffffff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+
+      /* Enable anti-aliasing for text */
+      -webkit-font-smoothing: antialiased;
+      font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
     }
 
     #flipbook img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain; /* Ensure images maintain aspect ratio */
+      /* Enable anti-aliasing for images */
+      image-rendering: smooth;
     }
 
     #controls {
@@ -131,16 +122,8 @@
       padding: 0 20px;
       box-sizing: border-box;
     }
-
     #pageSlider {
       width: 70%;
-    }
-
-    /* Mobile Styles */
-    @media (max-width: 768px) {
-      #flipbook {
-        height: 100vh; /* Full height for mobile */
-      }
     }
   </style>
 </head>
