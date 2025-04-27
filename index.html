@@ -15,13 +15,18 @@
       pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
       let pageFlip;
+      const totalPages = 0; // Initially set to zero, will be updated after loading the PDF
+
+      // Show loading spinner
+      document.getElementById('loadingSpinner').style.display = 'block';
 
       pdfjsLib.getDocument(url).promise.then(async function(pdf) {
+        totalPages = pdf.numPages;
         const pages = [];
 
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
-          const viewport = page.getViewport({ scale: 4 });
+          const viewport = page.getViewport({ scale: 4 }); // High resolution scale
           const canvas = document.createElement('canvas');
           const context = canvas.getContext('2d');
 
@@ -33,47 +38,51 @@
           const img = new Image();
           img.src = canvas.toDataURL();
           pages.push(img);
+
+          // Update the loading spinner with progress
+          const percentage = Math.round((i / totalPages) * 100);
+          document.getElementById('loadingSpinner').innerHTML = `Loading... ${percentage}%`;
         }
 
-        if (typeof St !== 'undefined' && St.PageFlip) {
-          pageFlip = new St.PageFlip(
-            document.getElementById('flipbook'),
-            {
-              width: 800,
-              height: 1000,
-              size: 'stretch',
-              minWidth: 315,
-              minHeight: 400,
-              maxWidth: 2000,
-              maxHeight: 3000,
-              showCover: true,
-              flippingTime: 700,
-              mobileScrollSupport: true,
-              useMouseEvents: true,
-              autoSize: true,
-              clickEventForward: true,
-              usePortrait: true,
-            }
-          );
+        pageFlip = new PageFlip(
+          document.getElementById('flipbook'),
+          {
+            width: 800,
+            height: 1000,
+            size: 'stretch',
+            minWidth: 315,
+            minHeight: 400,
+            maxWidth: 2000,
+            maxHeight: 3000,
+            showCover: true,
+            flippingTime: 700,
+            mobileScrollSupport: true,
+            useMouseEvents: true,
+            autoSize: true,
+            clickEventForward: true,
+            usePortrait: true,
+          }
+        );
 
-          pageFlip.loadFromImages(pages.map(page => page.src));
+        pageFlip.loadFromImages(pages.map(page => page.src));
 
-          // Setup slider
-          const pageSlider = document.getElementById('pageSlider');
-          pageSlider.max = pages.length;
+        // Hide the loading spinner after the content has loaded
+        document.getElementById('loadingSpinner').style.display = 'none';
 
-          pageSlider.addEventListener('input', (e) => {
-            pageFlip.flip(parseInt(e.target.value) - 1);
-          });
+        // Setup slider
+        const pageSlider = document.getElementById('pageSlider');
+        pageSlider.max = pages.length;
 
-          pageFlip.on('flip', (e) => {
-            pageSlider.value = e.data + 1;
-          });
-        } else {
-          console.error('PageFlip library not loaded properly.');
-        }
+        pageSlider.addEventListener('input', (e) => {
+          pageFlip.flip(parseInt(e.target.value) - 1);
+        });
+
+        pageFlip.on('flip', (e) => {
+          pageSlider.value = e.data + 1;
+        });
       }).catch(function(error) {
         console.error('Error loading PDF:', error);
+        document.getElementById('loadingSpinner').style.display = 'none'; // Hide the loader if there's an error
       });
 
       // Fullscreen button
@@ -130,9 +139,23 @@
     #fullscreenBtn:hover {
       background: #777;
     }
+
+    /* Loading Spinner Styles */
+    #loadingSpinner {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      color: #333;
+      display: none;
+    }
   </style>
 </head>
 <body>
+
+<!-- Loading Spinner -->
+<div id="loadingSpinner">Loading... 0%</div>
 
 <div id="controls">
   <input type="range" id="pageSlider" min="1" value="1">
