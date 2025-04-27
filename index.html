@@ -39,7 +39,7 @@
       const flipbookElement = document.getElementById('flipbook');
       if (flipbookElement) {
         if (typeof St !== 'undefined' && St.PageFlip) {
-          let pageFlip = new St.PageFlip(flipbookElement, {
+          const pageFlip = new St.PageFlip(flipbookElement, {
             size: 'fixed',
             width: window.innerWidth * 0.9,  // 90% of viewport width
             height: window.innerHeight * 0.8,  // 80% of viewport height
@@ -58,11 +58,6 @@
 
           pageFlip.loadFromImages(pages.map(page => page.src));
 
-          // Force PageFlip to update after images load
-          window.addEventListener('load', () => {
-            pageFlip.updateFromClient();
-          });
-
           // Dynamically resize PageFlip when the window is resized
           window.addEventListener('resize', () => {
             const newWidth = window.innerWidth * 0.9;  // 90% of viewport width
@@ -70,11 +65,7 @@
 
             pageFlip.resize(newWidth, newHeight);
             pageFlip.updateFromClient();
-            scaleFlipbook();
           });
-
-          // Set the initial scale for the flipbook to fit the screen
-          scaleFlipbook();
 
           // Setup page slider
           const pageSlider = document.getElementById('pageSlider');
@@ -94,22 +85,6 @@
         console.error('#flipbook element not found.');
       }
     });
-
-    function scaleFlipbook() {
-      const flipbookElement = document.getElementById('flipbook');
-      const flipbookWidth = flipbookElement.offsetWidth;
-      const flipbookHeight = flipbookElement.offsetHeight;
-
-      // Calculate scale factor based on the smaller dimension (width or height)
-      const scaleX = window.innerWidth / flipbookWidth;
-      const scaleY = window.innerHeight / flipbookHeight;
-
-      const scale = Math.min(scaleX, scaleY);
-
-      // Apply scaling to fit the screen
-      flipbookElement.style.transform = `scale(${scale})`;
-      flipbookElement.style.transformOrigin = 'top left';  // Ensure scaling is from the top-left corner
-    }
   </script>
   <style>
     body, html {
@@ -131,6 +106,7 @@
     #flipbook img {
       width: 100%;
       height: 100%;
+      object-fit: contain; /* Ensure the images fit well without being stretched */
     }
 
     #controls {
@@ -150,7 +126,7 @@
 
     @media (max-width: 768px) {
       #flipbook {
-        height: calc(100vh - 60px); /* Keep it fitting on small screens */
+        height: 100vh; /* Ensure it takes full height on smaller devices */
       }
     }
   </style>
