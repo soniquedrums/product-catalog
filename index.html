@@ -4,91 +4,60 @@
   <meta charset="UTF-8">
   <title>Product Catalog Flipbook</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <!-- PageFlip library from jsDelivr CDN -->
   <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>
   <script>
     // Ensure PageFlip is loaded before initializing flipbook
     window.onload = function() {
-      const url = 'https://cdn.shopify.com/s/files/1/0700/4844/8811/files/Product_Catalog_4.pdf';
+      const totalPages = 24; // Number of pages in the catalog
+      const imagePrefix = 'https://cdn.shopify.com/s/files/1/0700/4844/8811/files/page_'; // Replace with your image path
+      const version = '?v=1745772654'; // The query string version part
 
-      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      const pages = [];
+      for (let i = 1; i <= totalPages; i++) {
+        const img = new Image();
+        img.src = `${imagePrefix}${i}.png${version}`; // Construct image path for each page with version
+        pages.push(img);
+      }
 
-      let pageFlip;
+      if (typeof St !== 'undefined' && St.PageFlip) {
+        let pageFlip = new St.PageFlip(
+          document.getElementById('flipbook'),
+          {
+            width: 800,
+            height: 1000,
+            size: 'stretch',
+            minWidth: 315,
+            minHeight: 400,
+            maxWidth: 2000,
+            maxHeight: 3000,
+            showCover: true,
+            flippingTime: 700,
+            mobileScrollSupport: true,
+            useMouseEvents: true,
+            autoSize: true,
+            clickEventForward: true,
+            usePortrait: true,
+          }
+        );
 
-      pdfjsLib.getDocument(url).promise.then(async function(pdf) {
-        const pages = [];
+        pageFlip.loadFromImages(pages.map(page => page.src));
 
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i);
-          const viewport = page.getViewport({ scale: 4 });
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d');
+        // Setup slider
+        const pageSlider = document.getElementById('pageSlider');
+        pageSlider.max = pages.length;
 
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
+        pageSlider.addEventListener('input', (e) => {
+          pageFlip.flip(parseInt(e.target.value) - 1);
+        });
 
-          await page.render({ canvasContext: context, viewport: viewport }).promise;
-
-          const img = new Image();
-          img.src = canvas.toDataURL();
-          pages.push(img);
-        }
-
-        if (typeof St !== 'undefined' && St.PageFlip) {
-          pageFlip = new St.PageFlip(
-            document.getElementById('flipbook'),
-            {
-              width: 800,
-              height: 1000,
-              size: 'stretch',
-              minWidth: 315,
-              minHeight: 400,
-              maxWidth: 2000,
-              maxHeight: 3000,
-              showCover: true,
-              flippingTime: 700,
-              mobileScrollSupport: true,
-              useMouseEvents: true,
-              autoSize: true,
-              clickEventForward: true,
-              usePortrait: true,
-            }
-          );
-
-          pageFlip.loadFromImages(pages.map(page => page.src));
-
-          // Setup slider
-          const pageSlider = document.getElementById('pageSlider');
-          pageSlider.max = pages.length;
-
-          pageSlider.addEventListener('input', (e) => {
-            pageFlip.flip(parseInt(e.target.value) - 1);
-          });
-
-          pageFlip.on('flip', (e) => {
-            pageSlider.value = e.data + 1;
-          });
-        } else {
-          console.error('PageFlip library not loaded properly.');
-        }
-      }).catch(function(error) {
-        console.error('Error loading PDF:', error);
-      });
-
-      // Fullscreen button
-      const fullscreenBtn = document.getElementById('fullscreenBtn');
-      fullscreenBtn.addEventListener('click', () => {
-        const elem = document.documentElement;
-        if (!document.fullscreenElement) {
-          elem.requestFullscreen().catch(err => {
-            alert(`Error attempting to enable fullscreen mode: ${err.message}`);
-          });
-        } else {
-          document.exitFullscreen();
-        }
-      });
-    }
+        pageFlip.on('flip', (e) => {
+          pageSlider.value = e.data + 1;
+        });
+      } else {
+        console.error('PageFlip library not loaded properly.');
+      }
+    };
   </script>
   <style>
     body, html {
@@ -114,31 +83,3 @@
       justify-content: space-between;
       padding: 0 20px;
       box-sizing: border-box;
-    }
-    #pageSlider {
-      width: 70%;
-    }
-    #fullscreenBtn {
-      background: #555;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      cursor: pointer;
-      font-size: 16px;
-      border-radius: 5px;
-    }
-    #fullscreenBtn:hover {
-      background: #777;
-    }
-  </style>
-</head>
-<body>
-
-<div id="controls">
-  <input type="range" id="pageSlider" min="1" value="1">
-  <button id="fullscreenBtn">Fullscreen</button>
-</div>
-<div id="flipbook"></div>
-
-</body>
-</html>
