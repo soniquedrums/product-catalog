@@ -8,26 +8,18 @@
   <!-- PageFlip library from jsDelivr CDN -->
   <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>
   <script>
+    // Ensure PageFlip is loaded before initializing flipbook
     window.onload = function() {
       const url = 'https://cdn.shopify.com/s/files/1/0700/4844/8811/files/Product_Catalog_4.pdf';
-      
-      console.log("PDF URL:", url); // Debugging PDF URL
 
       pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-      let pageFlip; // Declare as let
-      const pages = [];
+      let pageFlip;
 
-      // Show loading spinner
-      document.getElementById('loadingSpinner').style.display = 'block';
-
-      // Load the PDF
       pdfjsLib.getDocument(url).promise.then(async function(pdf) {
-        console.log("PDF loaded successfully, pages:", pdf.numPages); // Debugging PDF load
+        const pages = [];
 
-        const totalPages = pdf.numPages;
-
-        for (let i = 1; i <= totalPages; i++) {
+        for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
           const viewport = page.getViewport({ scale: 4 });
           const canvas = document.createElement('canvas');
@@ -41,15 +33,10 @@
           const img = new Image();
           img.src = canvas.toDataURL();
           pages.push(img);
-
-          // Update the loading spinner with progress
-          const percentage = Math.round((i / totalPages) * 100);
-          document.getElementById('loadingSpinner').innerText = `Loading... ${percentage}%`;
         }
 
-        // Initialize the flipbook only once all pages are loaded
-        if (pages.length > 0) {
-          pageFlip = new PageFlip(
+        if (typeof St !== 'undefined' && St.PageFlip) {
+          pageFlip = new St.PageFlip(
             document.getElementById('flipbook'),
             {
               width: 800,
@@ -71,10 +58,7 @@
 
           pageFlip.loadFromImages(pages.map(page => page.src));
 
-          // Hide the loading spinner when loading is complete
-          document.getElementById('loadingSpinner').style.display = 'none';
-
-          // Setup the page slider
+          // Setup slider
           const pageSlider = document.getElementById('pageSlider');
           pageSlider.max = pages.length;
 
@@ -85,17 +69,14 @@
           pageFlip.on('flip', (e) => {
             pageSlider.value = e.data + 1;
           });
-
         } else {
-          console.error('No pages loaded. Check PDF.');
-          document.getElementById('loadingSpinner').style.display = 'none'; // Hide spinner on error
+          console.error('PageFlip library not loaded properly.');
         }
       }).catch(function(error) {
         console.error('Error loading PDF:', error);
-        document.getElementById('loadingSpinner').style.display = 'none'; // Hide spinner on error
       });
 
-      // Fullscreen button functionality
+      // Fullscreen button
       const fullscreenBtn = document.getElementById('fullscreenBtn');
       fullscreenBtn.addEventListener('click', () => {
         const elem = document.documentElement;
@@ -149,23 +130,9 @@
     #fullscreenBtn:hover {
       background: #777;
     }
-
-    /* Loading Spinner Styles */
-    #loadingSpinner {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 24px;
-      color: #333;
-      display: none;
-    }
   </style>
 </head>
 <body>
-
-<!-- Loading Spinner -->
-<div id="loadingSpinner">Loading... 0%</div>
 
 <div id="controls">
   <input type="range" id="pageSlider" min="1" value="1">
