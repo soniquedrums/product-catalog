@@ -101,15 +101,15 @@
       position: relative;
       background: #ffffff;
 
-      /* Disable anti-aliasing for crisper text */
+      /* Enable anti-aliasing for text */
+      -webkit-font-smoothing: antialiased;
+      font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
-      -webkit-font-smoothing: none;
-      font-smooth: never;
     }
 
     #flipbook img {
-      /* Ensure images aren't blurred by anti-aliasing */
-      image-rendering: pixelated;
+      /* Enable anti-aliasing for images */
+      image-rendering: smooth;
     }
 
     #controls {
