@@ -83,39 +83,44 @@ window.onload = function() {
       pages.push(img);
     }
 
-    pageFlip = new St.PageFlip(
-      document.getElementById('flipbook'),
-      {
-        width: 800,
-        height: 1000,
-        size: 'stretch',
-        minWidth: 315,
-        minHeight: 400,
-        maxWidth: 2000,
-        maxHeight: 3000,
-        showCover: true,
-        flippingTime: 700,
-        mobileScrollSupport: true,
-        useMouseEvents: true,
-        autoSize: true,
-        clickEventForward: true,
-        usePortrait: true,
-      }
-    );
+    // Ensure the PageFlip library is loaded before initializing the flipbook
+    if (typeof St !== 'undefined' && St.PageFlip) {
+      pageFlip = new St.PageFlip(
+        document.getElementById('flipbook'),
+        {
+          width: 800,
+          height: 1000,
+          size: 'stretch',
+          minWidth: 315,
+          minHeight: 400,
+          maxWidth: 2000,
+          maxHeight: 3000,
+          showCover: true,
+          flippingTime: 700,
+          mobileScrollSupport: true,
+          useMouseEvents: true,
+          autoSize: true,
+          clickEventForward: true,
+          usePortrait: true,
+        }
+      );
 
-    pageFlip.loadFromImages(pages.map(page => page.src));
+      pageFlip.loadFromImages(pages.map(page => page.src));
 
-    // Setup slider
-    const pageSlider = document.getElementById('pageSlider');
-    pageSlider.max = pages.length;
+      // Setup slider
+      const pageSlider = document.getElementById('pageSlider');
+      pageSlider.max = pages.length;
 
-    pageSlider.addEventListener('input', (e) => {
-      pageFlip.flip(parseInt(e.target.value) - 1);
-    });
+      pageSlider.addEventListener('input', (e) => {
+        pageFlip.flip(parseInt(e.target.value) - 1);
+      });
 
-    pageFlip.on('flip', (e) => {
-      pageSlider.value = e.data + 1;
-    });
+      pageFlip.on('flip', (e) => {
+        pageSlider.value = e.data + 1;
+      });
+    } else {
+      console.error('PageFlip library not loaded properly.');
+    }
   }).catch(function(error) {
     console.error('Error loading PDF:', error);
   });
