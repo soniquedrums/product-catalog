@@ -4,8 +4,12 @@
   <meta charset="UTF-8">
   <title>Product Catalog Flipbook</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Load PDF.js library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  
+  <!-- Load Page Flip library from CDN -->
   <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>
+
   <style>
     body, html {
       margin: 0;
@@ -100,7 +104,7 @@ window.onload = function() {
 
   pdfjsLib.getDocument(url).promise.then(async function(pdf) {
     const pages = [];
-    const scale = 4;  // Increase this value for higher resolution (2 or 3)
+    const scale = 2;  // Increase this value for higher resolution (2 or 3)
 
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i);
