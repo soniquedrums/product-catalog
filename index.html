@@ -8,25 +8,24 @@
   <!-- PageFlip library from jsDelivr CDN -->
   <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>
   <script>
-    // Ensure PageFlip is loaded before initializing flipbook
     window.onload = function() {
       const url = 'https://cdn.shopify.com/s/files/1/0700/4844/8811/files/Product_Catalog_4.pdf';
 
       pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-      let pageFlip;
-      const totalPages = 0; // Initially set to zero, will be updated after loading the PDF
+      let pageFlip;  // Declare this as let instead of const to allow reassigning it later.
+      const pages = [];
 
       // Show loading spinner
       document.getElementById('loadingSpinner').style.display = 'block';
 
+      // Load the PDF and process the pages
       pdfjsLib.getDocument(url).promise.then(async function(pdf) {
-        totalPages = pdf.numPages;
-        const pages = [];
+        const totalPages = pdf.numPages;
 
-        for (let i = 1; i <= pdf.numPages; i++) {
+        for (let i = 1; i <= totalPages; i++) {
           const page = await pdf.getPage(i);
-          const viewport = page.getViewport({ scale: 4 }); // High resolution scale
+          const viewport = page.getViewport({ scale: 4 }); // Higher resolution scale
           const canvas = document.createElement('canvas');
           const context = canvas.getContext('2d');
 
@@ -41,9 +40,10 @@
 
           // Update the loading spinner with progress
           const percentage = Math.round((i / totalPages) * 100);
-          document.getElementById('loadingSpinner').innerHTML = `Loading... ${percentage}%`;
+          document.getElementById('loadingSpinner').innerText = `Loading... ${percentage}%`;
         }
 
+        // Initialize the flipbook only once all pages are loaded
         pageFlip = new PageFlip(
           document.getElementById('flipbook'),
           {
@@ -64,12 +64,13 @@
           }
         );
 
+        // Load the pages into the flipbook
         pageFlip.loadFromImages(pages.map(page => page.src));
 
-        // Hide the loading spinner after the content has loaded
+        // Hide the loading spinner when loading is complete
         document.getElementById('loadingSpinner').style.display = 'none';
 
-        // Setup slider
+        // Setup the page slider
         const pageSlider = document.getElementById('pageSlider');
         pageSlider.max = pages.length;
 
@@ -80,88 +81,11 @@
         pageFlip.on('flip', (e) => {
           pageSlider.value = e.data + 1;
         });
+
       }).catch(function(error) {
         console.error('Error loading PDF:', error);
-        document.getElementById('loadingSpinner').style.display = 'none'; // Hide the loader if there's an error
+        document.getElementById('loadingSpinner').style.display = 'none'; // Hide spinner on error
       });
 
-      // Fullscreen button
-      const fullscreenBtn = document.getElementById('fullscreenBtn');
-      fullscreenBtn.addEventListener('click', () => {
-        const elem = document.documentElement;
-        if (!document.fullscreenElement) {
-          elem.requestFullscreen().catch(err => {
-            alert(`Error attempting to enable fullscreen mode: ${err.message}`);
-          });
-        } else {
-          document.exitFullscreen();
-        }
-      });
-    }
-  </script>
-  <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      background: #f0f0f0;
-      overflow: hidden;
-    }
-    #flipbook {
-      width: 100%;
-      height: calc(100% - 60px);
-      overflow: hidden;
-      position: relative;
-      background: #ffffff;
-    }
-    #controls {
-      height: 60px;
-      background: #333;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 20px;
-      box-sizing: border-box;
-    }
-    #pageSlider {
-      width: 70%;
-    }
-    #fullscreenBtn {
-      background: #555;
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      cursor: pointer;
-      font-size: 16px;
-      border-radius: 5px;
-    }
-    #fullscreenBtn:hover {
-      background: #777;
-    }
-
-    /* Loading Spinner Styles */
-    #loadingSpinner {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 24px;
-      color: #333;
-      display: none;
-    }
-  </style>
-</head>
-<body>
-
-<!-- Loading Spinner -->
-<div id="loadingSpinner">Loading... 0%</div>
-
-<div id="controls">
-  <input type="range" id="pageSlider" min="1" value="1">
-  <button id="fullscreenBtn">Fullscreen</button>
-</div>
-<div id="flipbook"></div>
-
-</body>
-</html>
+      // Fullscreen button functionality
+      const fullscreenBtn = document.getElementById
