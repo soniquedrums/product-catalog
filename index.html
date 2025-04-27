@@ -114,4 +114,27 @@ window.onload = function() {
       pageFlip.flip(parseInt(e.target.value) - 1);
     });
 
-    pageFlip.on('
+    pageFlip.on('flip', (e) => {
+      pageSlider.value = e.data + 1;
+    });
+  }).catch(function(error) {
+    console.error('Error loading PDF:', error);
+  });
+
+  // Fullscreen button
+  const fullscreenBtn = document.getElementById('fullscreenBtn');
+  fullscreenBtn.addEventListener('click', () => {
+    const elem = document.documentElement;
+    if (!document.fullscreenElement) {
+      elem.requestFullscreen().catch(err => {
+        alert(`Error attempting to enable fullscreen mode: ${err.message}`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  });
+};
+</script>
+
+</body>
+</html>
