@@ -69,6 +69,11 @@
           );
 
           pageFlip.loadFromImages(pages.map(page => page.src));
+          
+          // Force PageFlip to re-calculate sizes
+          window.addEventListener('load', () => {
+            pageFlip.updateFromClient();
+          });
 
           // Setup slider
           const pageSlider = document.getElementById('pageSlider');
