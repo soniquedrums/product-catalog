@@ -96,16 +96,17 @@
       overflow: hidden;
     }
     #flipbook {
-      width: auto;
+      width: 100%;
       max-width: 816px;
-      height: auto;
+      height: calc(100vh - 60px);
+      max-height: calc(100vh - 60px);
       aspect-ratio: 816 / 1056;
       margin: 0 auto;
       background: #ffffff;
       display: flex;
       justify-content: center;
       align-items: center;
-
+    
       /* Enable anti-aliasing for text */
       -webkit-font-smoothing: antialiased;
       font-smoothing: antialiased;
@@ -130,13 +131,14 @@
     #pageSlider {
       width: 70%;
     }
-  /* >>> Mobile-specific adjustments <<< */
-  @media (max-width: 768px) {
-    #flipbook {
-      max-width: 95vw;
-      height: auto;
+    /* Mobile-specific adjustments */
+    @media (max-width: 768px) {
+      #flipbook {
+        width: 95vw;
+        height: auto;
+        max-height: calc(100vh - 60px);
+      }
     }
-  }
   </style>
 </head>
 <body>
