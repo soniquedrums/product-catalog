@@ -8,7 +8,7 @@
   <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>
   <script>
     // Ensure PageFlip is loaded before initializing flipbook
-    window.onload = function() {
+    document.addEventListener('DOMContentLoaded', function () {
       const totalPages = 24; // Number of pages in the catalog
       const imagePrefix = 'https://cdn.shopify.com/s/files/1/0700/4844/8811/files/page_'; // Replace with your image path
       const version = '?v=1745772654'; // The query string version part
@@ -20,44 +20,50 @@
         pages.push(img);
       }
 
-      if (typeof St !== 'undefined' && St.PageFlip) {
-        let pageFlip = new St.PageFlip(
-          document.getElementById('flipbook'),
-          {
-            width: 800,
-            height: 1000,
-            size: 'stretch',
-            minWidth: 315,
-            minHeight: 400,
-            maxWidth: 2000,
-            maxHeight: 3000,
-            showCover: true,
-            flippingTime: 700,
-            mobileScrollSupport: true,
-            useMouseEvents: true,
-            autoSize: true,
-            clickEventForward: true,
-            usePortrait: true,
-          }
-        );
+      // Ensure the #flipbook element exists before initializing PageFlip
+      const flipbookElement = document.getElementById('flipbook');
+      if (flipbookElement) {
+        if (typeof St !== 'undefined' && St.PageFlip) {
+          let pageFlip = new St.PageFlip(
+            flipbookElement,
+            {
+              width: 800,
+              height: 1000,
+              size: 'stretch',
+              minWidth: 315,
+              minHeight: 400,
+              maxWidth: 2000,
+              maxHeight: 3000,
+              showCover: true,
+              flippingTime: 700,
+              mobileScrollSupport: true,
+              useMouseEvents: true,
+              autoSize: true,
+              clickEventForward: true,
+              usePortrait: true,
+            }
+          );
 
-        pageFlip.loadFromImages(pages.map(page => page.src));
+          pageFlip.loadFromImages(pages.map(page => page.src));
 
-        // Setup slider
-        const pageSlider = document.getElementById('pageSlider');
-        pageSlider.max = pages.length;
+          // Setup slider
+          const pageSlider = document.getElementById('pageSlider');
+          pageSlider.max = pages.length;
 
-        pageSlider.addEventListener('input', (e) => {
-          pageFlip.flip(parseInt(e.target.value) - 1);
-        });
+          pageSlider.addEventListener('input', (e) => {
+            pageFlip.flip(parseInt(e.target.value) - 1);
+          });
 
-        pageFlip.on('flip', (e) => {
-          pageSlider.value = e.data + 1;
-        });
+          pageFlip.on('flip', (e) => {
+            pageSlider.value = e.data + 1;
+          });
+        } else {
+          console.error('PageFlip library not loaded properly.');
+        }
       } else {
-        console.error('PageFlip library not loaded properly.');
+        console.error('#flipbook element not found.');
       }
-    };
+    });
   </script>
   <style>
     body, html {
@@ -83,3 +89,31 @@
       justify-content: space-between;
       padding: 0 20px;
       box-sizing: border-box;
+    }
+    #pageSlider {
+      width: 70%;
+    }
+    #fullscreenBtn {
+      background: #555;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      cursor: pointer;
+      font-size: 16px;
+      border-radius: 5px;
+    }
+    #fullscreenBtn:hover {
+      background: #777;
+    }
+  </style>
+</head>
+<body>
+
+<div id="controls">
+  <input type="range" id="pageSlider" min="1" value="1">
+  <button id="fullscreenBtn">Fullscreen</button>
+</div>
+<div id="flipbook"></div>
+
+</body>
+</html>
