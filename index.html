@@ -41,9 +41,9 @@
         if (typeof St !== 'undefined' && St.PageFlip) {
           // Initialize PageFlip
           const pageFlip = new St.PageFlip(flipbookElement, {
-            size: 'fixed', // Keep the size fixed
-            width: window.innerWidth * 0.8,  // Use 80% of the viewport width for desktops
-            height: window.innerHeight * 0.75,  // Use 75% of the viewport height
+            size: 'fixed', 
+            width: window.innerWidth * 0.8,  // Adjust width for desktop (80% of viewport width)
+            height: window.innerHeight * 0.75,  // Adjust height for desktop (75% of viewport height)
             minWidth: 612,
             minHeight: 792,
             maxWidth: 816,
@@ -101,7 +101,10 @@
       overflow: hidden;
       position: relative;
       background: #ffffff;
-      object-fit: contain;  /* Ensure images scale properly */
+      object-fit: contain;  /* Ensure images scale proportionally */
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     #flipbook img {
@@ -125,9 +128,10 @@
       width: 70%;
     }
 
+    /* Mobile Styles */
     @media (max-width: 768px) {
       #flipbook {
-        height: 100vh; /* Use full height on smaller devices */
+        height: 100vh; /* Full height for mobile */
       }
     }
   </style>
