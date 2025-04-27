@@ -46,9 +46,39 @@
     #fullscreenBtn:hover {
       background: #777;
     }
+    
+    /* Loading spinner style */
+    #loadingSpinner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 20px;
+      color: #333;
+      display: none;
+    }
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3498db;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
+
+<!-- Loading Spinner -->
+<div id="loadingSpinner">
+  <div class="spinner"></div>
+  <p>Loading Catalog...</p>
+</div>
 
 <div id="controls">
   <input type="range" id="pageSlider" min="1" value="1">
@@ -59,14 +89,18 @@
 <script>
 window.onload = function() {
   const url = 'https://cdn.shopify.com/s/files/1/0700/4844/8811/files/Product_Catalog_4.pdf';
+  const loadingSpinner = document.getElementById('loadingSpinner');
 
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
   let pageFlip;
 
+  // Show the spinner while the PDF is loading
+  loadingSpinner.style.display = 'block';
+
   pdfjsLib.getDocument(url).promise.then(async function(pdf) {
     const pages = [];
-    const scale = 4;  // Increase this value for higher resolution (2 or 3)
+    const scale = 2;  // Increase this value for higher resolution (2 or 3)
 
     for (let i = 1; i <= pdf.numPages; i++) {
       const page = await pdf.getPage(i);
@@ -117,8 +151,12 @@ window.onload = function() {
     pageFlip.on('flip', (e) => {
       pageSlider.value = e.data + 1;
     });
+
+    // Hide the loading spinner once the PDF is fully loaded
+    loadingSpinner.style.display = 'none';
   }).catch(function(error) {
     console.error('Error loading PDF:', error);
+    loadingSpinner.innerHTML = `<p>Error loading catalog. Please try again later.</p>`;
   });
 
   // Fullscreen button
