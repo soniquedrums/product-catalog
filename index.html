@@ -6,20 +6,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>
   <script>
+    // Ensure PageFlip is loaded before initializing flipbook
     document.addEventListener('DOMContentLoaded', function () {
       const urlParams = new URLSearchParams(window.location.search);
-      const selectedYear = urlParams.get('year');
+      const selectedYear = urlParams.get('year'); // Get the selected year from the URL
 
+      // If no year is selected, return an error
       if (!selectedYear) {
         console.error('Catalog year is missing.');
         return;
       }
 
+      // Page count mapping for each year (you can adjust this based on the number of pages each catalog has)
       const pageCountMapping = {
-        '2025': 24,
-        '2024': 16,
+        '2026': 26, // 2026 catalog has 24 pages
+        '2025': 24, // 2025 catalog has 24 pages
+        '2024': 16, // 2024 catalog has 16 pages
+        // Add more years and their respective page counts as needed
       };
 
+      // Get total pages for the selected catalog year
       const totalPages = pageCountMapping[selectedYear];
       if (!totalPages) {
         console.error('No page count found for the selected year.');
@@ -27,91 +33,60 @@
       }
 
       const imagePrefix = `https://soniquedrums.github.io/product-catalog/assets/page-images/${selectedYear}/page_`;
-      const version = '?';
+      const version = '?'; // The query string version part
 
       const pages = [];
       for (let i = 1; i <= totalPages; i++) {
-        pages.push(`${imagePrefix}${i}.png${version}`);
+        const img = new Image();
+        img.src = `${imagePrefix}${i}.png${version}`; // Construct image path dynamically
+        pages.push(img);
       }
 
+      // Ensure the #flipbook element exists before initializing PageFlip
       const flipbookElement = document.getElementById('flipbook');
-      let pageFlip;
-      let currentScale = 1; // Track zoom level
+      if (flipbookElement) {
+        if (typeof St !== 'undefined' && St.PageFlip) {
+          let pageFlip = new St.PageFlip(
+            flipbookElement,
+            {
+              width: 800,
+              height: 1000,
+              size: 'stretch',
+              minWidth: 315,
+              minHeight: 400,
+              maxWidth: 2000,
+              maxHeight: 3000,
+              showCover: true,
+              flippingTime: 700,
+              mobileScrollSupport: true,
+              useMouseEvents: true,
+              autoSize: true,
+              clickEventForward: true,
+              usePortrait: true,
+            }
+          );
 
-      function initFlipbook() {
-        pageFlip = new St.PageFlip(
-          flipbookElement,
-          {
-            width: 800 * currentScale,
-            height: 1000 * currentScale,
-            size: 'stretch',
-            minWidth: 315,
-            minHeight: 400,
-            maxWidth: 2000,
-            maxHeight: 3000,
-            showCover: true,
-            flippingTime: 700,
-            mobileScrollSupport: true,
-            useMouseEvents: true,
-            autoSize: true,
-            clickEventForward: true,
-            usePortrait: true,
-          }
-        );
+          pageFlip.loadFromImages(pages.map(page => page.src));
 
-        pageFlip.loadFromImages(pages);
+          // Setup slider
+          const pageSlider = document.getElementById('pageSlider');
+          pageSlider.max = pages.length;
 
-        const pageSlider = document.getElementById('pageSlider');
-        pageSlider.max = pages.length;
+          pageSlider.addEventListener('input', (e) => {
+            pageFlip.flip(parseInt(e.target.value) - 1);
+          });
 
-        pageSlider.addEventListener('input', (e) => {
-          pageFlip.flip(parseInt(e.target.value) - 1);
-        });
-
-        pageFlip.on('flip', (e) => {
-          pageSlider.value = e.data + 1;
-        });
-      }
-
-      function destroyFlipbook() {
-        if (pageFlip) {
-          pageFlip.destroy();
+          pageFlip.on('flip', (e) => {
+            pageSlider.value = e.data + 1;
+          });
+        } else {
+          console.error('PageFlip library not loaded properly.');
         }
+      } else {
+        console.error('#flipbook element not found.');
       }
-
-      function smoothZoom(newScale) {
-        flipbookElement.style.transition = 'opacity 0.5s';
-        flipbookElement.style.opacity = '0';
-
-        setTimeout(() => {
-          destroyFlipbook();
-          currentScale = newScale;
-          initFlipbook();
-          flipbookElement.style.opacity = '1';
-        }, 500);
-      }
-
-      function zoomIn() {
-        if (currentScale < 2) {
-          smoothZoom(currentScale + 0.1);
-        }
-      }
-
-      function zoomOut() {
-        if (currentScale > 0.5) {
-          smoothZoom(currentScale - 0.1);
-        }
-      }
-
-      // Initialize Flipbook
-      initFlipbook();
-
-      // Set up zoom controls
-      document.getElementById('zoomIn').addEventListener('click', zoomIn);
-      document.getElementById('zoomOut').addEventListener('click', zoomOut);
     });
   </script>
-
   <style>
     body, html {
       margin: 0;
@@ -126,18 +101,22 @@
       overflow: hidden;
       position: relative;
       background: #727272;
+
+      /* Enable anti-aliasing for text */
       -webkit-font-smoothing: antialiased;
       font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
-      transition: opacity 0.5s; /* Smooth transition */
     }
+
     #flipbook img {
+      /* Enable anti-aliasing for images */
       image-rendering: smooth;
     }
+
     #controls {
       height: 60px;
       background: #333;
-      color: white;
+      color: #727272;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -145,38 +124,15 @@
       box-sizing: border-box;
     }
     #pageSlider {
-      width: 50%;
-    }
-    #zoomControls {
-      display: flex;
-      gap: 10px;
-    }
-    #zoomControls button {
-      padding: 5px 10px;
-      font-size: 16px;
-      cursor: pointer;
-      background: #555;
-      border: none;
-      color: white;
-      border-radius: 4px;
-      transition: background 0.3s;
-    }
-    #zoomControls button:hover {
-      background: #777;
+      width: 70%;
     }
   </style>
 </head>
-
 <body>
 
 <div id="controls">
   <input type="range" id="pageSlider" min="1" value="1">
-  <div id="zoomControls">
-    <button id="zoomIn">Zoom In</button>
-    <button id="zoomOut">Zoom Out</button>
-  </div>
 </div>
-
 <div id="flipbook"></div>
 
 </body>
