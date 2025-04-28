@@ -31,74 +31,84 @@
 
       const pages = [];
       for (let i = 1; i <= totalPages; i++) {
-        const img = new Image();
-        img.src = `${imagePrefix}${i}.png${version}`;
-        pages.push(img);
+        pages.push(`${imagePrefix}${i}.png${version}`);
       }
 
       const flipbookElement = document.getElementById('flipbook');
       let pageFlip;
-      let currentScale = 1; // Track zoom scale
+      let currentScale = 1; // Track zoom level
 
-      if (flipbookElement) {
-        if (typeof St !== 'undefined' && St.PageFlip) {
-          pageFlip = new St.PageFlip(
-            flipbookElement,
-            {
-              width: 800,
-              height: 1000,
-              size: 'stretch',
-              minWidth: 315,
-              minHeight: 400,
-              maxWidth: 2000,
-              maxHeight: 3000,
-              showCover: true,
-              flippingTime: 700,
-              mobileScrollSupport: true,
-              useMouseEvents: true,
-              autoSize: true,
-              clickEventForward: true,
-              usePortrait: true,
-            }
-          );
+      function initFlipbook() {
+        pageFlip = new St.PageFlip(
+          flipbookElement,
+          {
+            width: 800 * currentScale,
+            height: 1000 * currentScale,
+            size: 'stretch',
+            minWidth: 315,
+            minHeight: 400,
+            maxWidth: 2000,
+            maxHeight: 3000,
+            showCover: true,
+            flippingTime: 700,
+            mobileScrollSupport: true,
+            useMouseEvents: true,
+            autoSize: true,
+            clickEventForward: true,
+            usePortrait: true,
+          }
+        );
 
-          pageFlip.loadFromImages(pages.map(page => page.src));
+        pageFlip.loadFromImages(pages);
 
-          const pageSlider = document.getElementById('pageSlider');
-          pageSlider.max = pages.length;
+        const pageSlider = document.getElementById('pageSlider');
+        pageSlider.max = pages.length;
 
-          pageSlider.addEventListener('input', (e) => {
-            pageFlip.flip(parseInt(e.target.value) - 1);
-          });
+        pageSlider.addEventListener('input', (e) => {
+          pageFlip.flip(parseInt(e.target.value) - 1);
+        });
 
-          pageFlip.on('flip', (e) => {
-            pageSlider.value = e.data + 1;
-          });
-
-          // Zoom In
-          document.getElementById('zoomIn').addEventListener('click', () => {
-            currentScale = Math.min(currentScale + 0.1, 2);
-            pageFlip.update({
-              width: 800 * currentScale,
-              height: 1000 * currentScale,
-            });
-          });
-
-          // Zoom Out
-          document.getElementById('zoomOut').addEventListener('click', () => {
-            currentScale = Math.max(currentScale - 0.1, 0.5);
-            pageFlip.update({
-              width: 800 * currentScale,
-              height: 1000 * currentScale,
-            });
-          });
-
-        } else {
-          console.error('PageFlip library not loaded properly.');
-        }
-      } else {
-        console.error('#flipbook element not found.');
+        pageFlip.on('flip', (e) => {
+          pageSlider.value = e.data + 1;
+        });
       }
+
+      function destroyFlipbook() {
+        if (pageFlip) {
+          pageFlip.destroy();
+        }
+      }
+
+      function smoothZoom(newScale) {
+        flipbookElement.style.transition = 'opacity 0.5s';
+        flipbookElement.style.opacity = '0';
+
+        setTimeout(() => {
+          destroyFlipbook();
+          currentScale = newScale;
+          initFlipbook();
+          flipbookElement.style.opacity = '1';
+        }, 500);
+      }
+
+      function zoomIn() {
+        if (currentScale < 2) {
+          smoothZoom(currentScale + 0.1);
+        }
+      }
+
+      function zoomOut() {
+        if (currentScale > 0.5) {
+          smoothZoom(currentScale - 0.1);
+        }
+      }
+
+      // Initialize Flipbook
+      initFlipbook();
+
+      // Set up zoom controls
+      document.getElementById('zoomIn').addEventListener('click', zoomIn);
+      document.getElementById('zoomOut').addEventListener('click', zoomOut);
     });
   </script>
 
@@ -119,6 +129,7 @@
       -webkit-font-smoothing: antialiased;
       font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
+      transition: opacity 0.5s; /* Smooth transition */
     }
     #flipbook img {
       image-rendering: smooth;
