@@ -6,26 +6,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>
   <script>
-    // Ensure PageFlip is loaded before initializing flipbook
     document.addEventListener('DOMContentLoaded', function () {
       const urlParams = new URLSearchParams(window.location.search);
-      const selectedYear = urlParams.get('year'); // Get the selected year from the URL
+      const selectedYear = urlParams.get('year');
 
-      // If no year is selected, return an error
       if (!selectedYear) {
         console.error('Catalog year is missing.');
         return;
       }
 
-      // Page count mapping for each year (you can adjust this based on the number of pages each catalog has)
       const pageCountMapping = {
-        '2026': 24, // 2026 catalog has 24 pages
-        '2025': 24, // 2025 catalog has 24 pages
-        '2024': 16, // 2024 catalog has 16 pages
-        // Add more years and their respective page counts as needed
+        '2025': 24,
+        '2024': 16,
       };
 
-      // Get total pages for the selected catalog year
       const totalPages = pageCountMapping[selectedYear];
       if (!totalPages) {
         console.error('No page count found for the selected year.');
@@ -33,20 +27,22 @@
       }
 
       const imagePrefix = `https://soniquedrums.github.io/product-catalog/assets/page-images/${selectedYear}/page_`;
-      const version = '?'; // The query string version part
+      const version = '?';
 
       const pages = [];
       for (let i = 1; i <= totalPages; i++) {
         const img = new Image();
-        img.src = `${imagePrefix}${i}.png${version}`; // Construct image path dynamically
+        img.src = `${imagePrefix}${i}.png${version}`;
         pages.push(img);
       }
 
-      // Ensure the #flipbook element exists before initializing PageFlip
       const flipbookElement = document.getElementById('flipbook');
+      let pageFlip;
+      let currentScale = 1; // Track zoom scale
+
       if (flipbookElement) {
         if (typeof St !== 'undefined' && St.PageFlip) {
-          let pageFlip = new St.PageFlip(
+          pageFlip = new St.PageFlip(
             flipbookElement,
             {
               width: 800,
@@ -68,7 +64,6 @@
 
           pageFlip.loadFromImages(pages.map(page => page.src));
 
-          // Setup slider
           const pageSlider = document.getElementById('pageSlider');
           pageSlider.max = pages.length;
 
@@ -79,31 +74,34 @@
           pageFlip.on('flip', (e) => {
             pageSlider.value = e.data + 1;
           });
+
+          // Zoom In
+          document.getElementById('zoomIn').addEventListener('click', () => {
+            currentScale = Math.min(currentScale + 0.1, 2);
+            pageFlip.update({
+              width: 800 * currentScale,
+              height: 1000 * currentScale,
+            });
+          });
+
+          // Zoom Out
+          document.getElementById('zoomOut').addEventListener('click', () => {
+            currentScale = Math.max(currentScale - 0.1, 0.5);
+            pageFlip.update({
+              width: 800 * currentScale,
+              height: 1000 * currentScale,
+            });
+          });
+
         } else {
           console.error('PageFlip library not loaded properly.');
         }
       } else {
         console.error('#flipbook element not found.');
       }
-      let currentScale = 1; // Start at normal scale
-
-      document.getElementById('zoomIn').addEventListener('click', () => {
-        currentScale = Math.min(currentScale + 0.1, 2); // Max 2x zoom
-        pageFlip.update({
-          width: 800 * currentScale,
-          height: 1000 * currentScale,
-        });
-      });
-
-      document.getElementById('zoomOut').addEventListener('click', () => {
-        currentScale = Math.max(currentScale - 0.1, 0.5); // Min 0.5x zoom
-        pageFlip.update({
-          width: 800 * currentScale,
-          height: 1000 * currentScale,
-        });
-      });
     });
   </script>
+
   <style>
     body, html {
       margin: 0;
@@ -117,18 +115,14 @@
       height: calc(100% - 60px);
       overflow: hidden;
       position: relative;
-      background: #727272;
-
-      /* Enable anti-aliasing for text */
+      background: #ffffff;
       -webkit-font-smoothing: antialiased;
       font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
     }
-
     #flipbook img {
-    image-rendering: optimizeQuality;
+      image-rendering: smooth;
     }
-
     #controls {
       height: 60px;
       background: #333;
@@ -139,11 +133,13 @@
       padding: 0 20px;
       box-sizing: border-box;
     }
+    #pageSlider {
+      width: 50%;
+    }
     #zoomControls {
       display: flex;
       gap: 10px;
     }
-
     #zoomControls button {
       padding: 5px 10px;
       font-size: 16px;
@@ -154,16 +150,12 @@
       border-radius: 4px;
       transition: background 0.3s;
     }
-
     #zoomControls button:hover {
       background: #777;
     }
-
-    #pageSlider {
-      width: 70%;
-    }
   </style>
 </head>
+
 <body>
 
 <div id="controls">
@@ -173,12 +165,8 @@
     <button id="zoomOut">Zoom Out</button>
   </div>
 </div>
-  
 
-<!-- <div id="controls">
-  <input type="range" id="pageSlider" min="1" value="1">
-</div>
-<div id="flipbook"></div> -->
+<div id="flipbook"></div>
 
 </body>
 </html>
