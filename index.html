@@ -85,6 +85,23 @@
       } else {
         console.error('#flipbook element not found.');
       }
+      let currentScale = 1; // Start at normal scale
+
+      document.getElementById('zoomIn').addEventListener('click', () => {
+        currentScale = Math.min(currentScale + 0.1, 2); // Max 2x zoom
+        pageFlip.update({
+          width: 800 * currentScale,
+          height: 1000 * currentScale,
+        });
+      });
+
+      document.getElementById('zoomOut').addEventListener('click', () => {
+        currentScale = Math.max(currentScale - 0.1, 0.5); // Min 0.5x zoom
+        pageFlip.update({
+          width: 800 * currentScale,
+          height: 1000 * currentScale,
+        });
+      });
     });
   </script>
   <style>
@@ -122,6 +139,26 @@
       padding: 0 20px;
       box-sizing: border-box;
     }
+    #zoomControls {
+      display: flex;
+      gap: 10px;
+    }
+
+    #zoomControls button {
+      padding: 5px 10px;
+      font-size: 16px;
+      cursor: pointer;
+      background: #555;
+      border: none;
+      color: white;
+      border-radius: 4px;
+      transition: background 0.3s;
+    }
+
+    #zoomControls button:hover {
+      background: #777;
+    }
+
     #pageSlider {
       width: 70%;
     }
@@ -131,8 +168,17 @@
 
 <div id="controls">
   <input type="range" id="pageSlider" min="1" value="1">
+  <div id="zoomControls">
+    <button id="zoomIn">Zoom In</button>
+    <button id="zoomOut">Zoom Out</button>
+  </div>
 </div>
-<div id="flipbook"></div>
+  
+
+<!-- <div id="controls">
+  <input type="range" id="pageSlider" min="1" value="1">
+</div>
+<div id="flipbook"></div> -->
 
 </body>
 </html>
