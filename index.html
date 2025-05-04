@@ -116,7 +116,8 @@
 
     #flipbook img {
       /* Enable anti-aliasing for images */
-      image-rendering: smooth;
+      image-rendering: crisp-edges;
+      image-rendering: pixelated; /* fallback for some browsers */
     }
 
     #controls {
