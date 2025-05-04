@@ -146,7 +146,7 @@
 
       pageFlip.loadFromImages(pages.map(p => p.src));
 
-      // Download button logic
+      // Download Current Page
       document.getElementById('downloadPageBtn').addEventListener('click', function () {
         const currentPage = pageFlip.getCurrentPageIndex() + 1;
         const pageUrl = `${imagePrefix}${currentPage}.png`;
@@ -159,10 +159,12 @@
         document.body.removeChild(a);
       });
 
+      // Download Entire Catalog
       document.getElementById('downloadPdfBtn').addEventListener('click', function () {
+        const pdfUrl = `https://soniquedrums.github.io/product-catalog/assets/${selectedYear}_catalog.pdf`;
         const a = document.createElement('a');
-        a.href = 'https://soniquedrums.github.io/product-catalog/assets/25_26_catalog.pdf';
-        a.download = 'Sonique-Product-Catalog.pdf';
+        a.href = pdfUrl;
+        a.download = `Sonique-Product-Catalog-${selectedYear}.pdf`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
