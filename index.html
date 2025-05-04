@@ -57,7 +57,7 @@
             {
               width: 816,
               height: 1056,
-              size: 'fit',
+              size: 'fixed',
               minWidth: 315,
               minHeight: 400,
               maxWidth: 816,
@@ -107,6 +107,8 @@
       overflow: hidden;
       position: relative;
       background: #727272;
+      transform-origin: top left;
+      transform: scale(0.9); /* Tweak per screen */
 
       /* Enable anti-aliasing for text */
       -webkit-font-smoothing: antialiased;
@@ -114,6 +116,11 @@
       text-rendering: optimizeLegibility;
     }
 
+    @media (max-width: 768px) {
+    #flipbook {
+      transform: scale(0.5);
+      }
+    }
     #flipbook img {
       /* Enable anti-aliasing for images */
       image-rendering: crisp-edges;
