@@ -12,14 +12,36 @@
   
   <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>
 
+  <a href="https://soniquedrums.github.io/product-catalog/assets/25_26_catalog.pdf" download class="download-btn">
+    Download Catalog (PDF)
+  </a>
+  
+
   <style>
     html, body {
       margin: 0;
       padding: 0;
       height: 100%;
       overflow: hidden;
-      background: #f0f0f0;
+      background: #727272;
     }
+
+    .download-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: #222;
+      color: white;
+      padding: 10px 15px;
+      text-decoration: none;
+      border-radius: 6px;
+      font-size: 14px;
+      z-index: 1000;
+    }
+    .download-btn:hover {
+      background: #444;
+    }
+
 
     #flipbook {
       width: 100vw;
