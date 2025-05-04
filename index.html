@@ -12,9 +12,9 @@
   
   <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>
 
-  <a href="https://soniquedrums.github.io/product-catalog/assets/25_26_catalog.pdf" download class="download-btn">
+  <!-- <a href="https://soniquedrums.github.io/product-catalog/assets/25_26_catalog.pdf" download class="download-btn">
     Download Catalog (PDF)
-  </a>
+  </a> -->
   
 
   <style>
@@ -25,12 +25,11 @@
       overflow: hidden;
       background: #727272;
     }
-
+/* 
     .download-btn {
       position: absolute;
       top: 20px;
       right: 20px;
-      bottom: 100px;
       background: #222;
       color: white;
       padding: 10px 15px;
@@ -43,8 +42,7 @@
     }
     .download-btn:hover {
       background: #444;
-    }
-
+    } */
 
     #flipbook {
       width: 100vw;
@@ -67,7 +65,7 @@
       color: #fff;
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
       box-sizing: border-box;
       padding: 0 20px;
       z-index: 10;
@@ -76,12 +74,28 @@
     #pageSlider {
       width: 70%;
     }
+
+    #downloadPageBtn {
+      background: #222;
+      color: white;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    #downloadPageBtn:hover {
+      background: #444;
+    }
+
   </style>
 </head>
 <body>
 
 <div id="controls">
   <input type="range" id="pageSlider" min="1" value="1">
+  <button id="downloadPageBtn">Download Page</button>
 </div>
 <div id="flipbook"></div>
 
@@ -152,6 +166,19 @@
       });
 
       pageFlip.loadFromImages(pages.map(p => p.src));
+
+      // Download button logic
+      document.getElementById('downloadPageBtn').addEventListener('click', function () {
+        const currentPage = pageFlip.getCurrentPageIndex() + 1;
+        const pageUrl = `${imagePrefix}${currentPage}.png`;
+
+        const a = document.createElement('a');
+        a.href = pageUrl;
+        a.download = `catalog-page-${currentPage}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      });
 
       const pageSlider = document.getElementById('pageSlider');
       pageSlider.max = pages.length;
