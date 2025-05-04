@@ -10,12 +10,7 @@
   <!-- ICO fallback for desktop browsers -->
   <link rel="icon-2" type="image/x-icon" href="https://soniquedrums.github.io/product-catalog/assets/s-favicon.ico">
   
-  <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>
-
-  <!-- <a href="https://soniquedrums.github.io/product-catalog/assets/25_26_catalog.pdf" download class="download-btn">
-    Download Catalog (PDF)
-  </a> -->
-  
+  <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>  
 
   <style>
     html, body {
@@ -25,24 +20,6 @@
       overflow: hidden;
       background: #727272;
     }
-/* 
-    .download-btn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background: #222;
-      color: white;
-      padding: 10px 15px;
-      text-decoration: none;
-      border-radius: 6px;
-      font-size: 14px;
-      font-style: normal;
-      font-family: Arial, Helvetica, sans-serif;
-      z-index: 1000;
-    }
-    .download-btn:hover {
-      background: #444;
-    } */
 
     #flipbook {
       width: 100vw;
@@ -95,7 +72,8 @@
 
 <div id="controls">
   <input type="range" id="pageSlider" min="1" value="1">
-  <button id="downloadPageBtn">Download Page</button>
+  <button id="downloadPageBtn">Download Current Page</button>
+  <button id="downloadPdfBtn">Download Full Catalog</button>
 </div>
 <div id="flipbook"></div>
 
@@ -175,6 +153,15 @@
         const a = document.createElement('a');
         a.href = pageUrl;
         a.download = `catalog-page-${currentPage}.png`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      });
+
+      document.getElementById('downloadPdfBtn').addEventListener('click', function () {
+        const a = document.createElement('a');
+        a.href = 'https://soniquedrums.github.io/product-catalog/assets/25_26_catalog.pdf';
+        a.download = 'Sonique-Product-Catalog.pdf';
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
