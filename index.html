@@ -5,138 +5,45 @@
   <title>Sonique Product Catalog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Standard PNG favicon -->
-<link rel="icon" type="image/png" href="https://soniquedrums.github.io/product-catalog/assets/s-favicon.png">
+  <link rel="icon" type="image/png" href="https://soniquedrums.github.io/product-catalog/assets/s-favicon.png">
 
-<!-- ICO fallback for desktop browsers -->
-<link rel="icon-2" type="image/x-icon" href="https://soniquedrums.github.io/product-catalog/assets/s-favicon.ico">
+  <!-- ICO fallback for desktop browsers -->
+  <link rel="icon-2" type="image/x-icon" href="https://soniquedrums.github.io/product-catalog/assets/s-favicon.ico">
   
   <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>
-  <script>
-    // Ensure PageFlip is loaded before initializing flipbook
-    document.addEventListener('DOMContentLoaded', function () {
-      const urlParams = new URLSearchParams(window.location.search);
-      const selectedYear = urlParams.get('year'); // Get the selected year from the URL
 
-      // If no year is selected, return an error
-      if (!selectedYear) {
-        console.error('Catalog year is missing.');
-        return;
-      }
-
-      // Page count mapping for each year (you can adjust this based on the number of pages each catalog has)
-      const pageCountMapping = {
-        '2026': 26, // 2026 catalog has 24 pages
-        '2025': 24, // 2025 catalog has 24 pages
-        '2024': 16, // 2024 catalog has 16 pages
-        // Add more years and their respective page counts as needed
-      };
-
-      // Get total pages for the selected catalog year
-      const totalPages = pageCountMapping[selectedYear];
-      if (!totalPages) {
-        console.error('No page count found for the selected year.');
-        return;
-      }
-
-      const imagePrefix = `https://soniquedrums.github.io/product-catalog/assets/page-images/${selectedYear}/page_`;
-      const version = '?'; // The query string version part
-
-      const pages = [];
-      for (let i = 1; i <= totalPages; i++) {
-        const img = new Image();
-        img.src = `${imagePrefix}${i}.png${version}`; // Construct image path dynamically
-        pages.push(img);
-      }
-
-      // Ensure the #flipbook element exists before initializing PageFlip
-      const flipbookElement = document.getElementById('flipbook');
-      if (flipbookElement) {
-        if (typeof St !== 'undefined' && St.PageFlip) {
-          let pageFlip = new St.PageFlip(
-            flipbookElement,
-            {
-              width: 816,
-              height: 1056,
-              size: 'fixed',
-              minWidth: 315,
-              minHeight: 400,
-              maxWidth: 816,
-              maxHeight: 1056,
-              showCover: true,
-              flippingTime: 700,
-              mobileScrollSupport: true,
-              useMouseEvents: true,
-              autoSize: true,
-              clickEventForward: true,
-              usePortrait: true,
-            }
-          );
-
-          pageFlip.loadFromImages(pages.map(page => page.src));
-
-          // Setup slider
-          const pageSlider = document.getElementById('pageSlider');
-          pageSlider.max = pages.length;
-
-          pageSlider.addEventListener('input', (e) => {
-            pageFlip.flip(parseInt(e.target.value) - 1);
-          });
-
-          pageFlip.on('flip', (e) => {
-            pageSlider.value = e.data + 1;
-          });
-        } else {
-          console.error('PageFlip library not loaded properly.');
-        }
-      } else {
-        console.error('#flipbook element not found.');
-      }
-    });
-  </script>
   <style>
-    body, html {
+    html, body {
       margin: 0;
       padding: 0;
       height: 100%;
+      overflow: hidden;
       background: #f0f0f0;
-      overflow: hidden;
     }
+
     #flipbook {
-      width: 100%;
-      height: calc(100% - 60px);
-      overflow: hidden;
-      position: relative;
+      position: absolute;
+      top: 0;
+      left: 0;
       background: #727272;
       transform-origin: top left;
-      transform: scale(0.9); /* Tweak per screen */
-
-      /* Enable anti-aliasing for text */
-      -webkit-font-smoothing: antialiased;
-      font-smoothing: antialiased;
-      text-rendering: optimizeLegibility;
-    }
-
-    @media (max-width: 768px) {
-    #flipbook {
-      transform: scale(0.5);
-      }
-    }
-    #flipbook img {
-      /* Enable anti-aliasing for images */
-      image-rendering: crisp-edges;
-      image-rendering: pixelated; /* fallback for some browsers */
     }
 
     #controls {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
       height: 60px;
       background: #333;
-      color: #727272;
+      color: #fff;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 0 20px;
+      justify-content: center;
       box-sizing: border-box;
+      padding: 0 20px;
+      z-index: 10;
     }
+
     #pageSlider {
       width: 70%;
     }
@@ -148,6 +55,90 @@
   <input type="range" id="pageSlider" min="1" value="1">
 </div>
 <div id="flipbook"></div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const selectedYear = urlParams.get('year');
+
+    if (!selectedYear) {
+      console.error('Catalog year is missing.');
+      return;
+    }
+
+    const pageCountMapping = {
+      '2026': 26,
+      '2025': 24,
+      '2024': 16
+    };
+
+    const totalPages = pageCountMapping[selectedYear];
+    if (!totalPages) {
+      console.error('No page count found for the selected year.');
+      return;
+    }
+
+    const imagePrefix = `https://soniquedrums.github.io/product-catalog/assets/page-images/${selectedYear}/page_`;
+    const version = '?';
+
+    const pages = [];
+    for (let i = 1; i <= totalPages; i++) {
+      const img = new Image();
+      img.src = `${imagePrefix}${i}.png${version}`;
+      pages.push(img);
+    }
+
+    const flipbookElement = document.getElementById('flipbook');
+    if (!flipbookElement) {
+      console.error('#flipbook element not found.');
+      return;
+    }
+
+    const flipbookWidth = 800;
+    const flipbookHeight = 1000;
+
+    const scale = Math.min(
+      window.innerWidth / flipbookWidth,
+      (window.innerHeight - 60) / flipbookHeight
+    );
+
+    flipbookElement.style.transform = `scale(${scale})`;
+
+    if (typeof St !== 'undefined' && St.PageFlip) {
+      const pageFlip = new St.PageFlip(flipbookElement, {
+        width: flipbookWidth,
+        height: flipbookHeight,
+        size: 'fixed',
+        minWidth: 315,
+        minHeight: 400,
+        maxWidth: 2000,
+        maxHeight: 3000,
+        showCover: true,
+        flippingTime: 700,
+        mobileScrollSupport: true,
+        useMouseEvents: true,
+        autoSize: false,
+        clickEventForward: true,
+        usePortrait: true,
+      });
+
+      pageFlip.loadFromImages(pages.map(p => p.src));
+
+      const pageSlider = document.getElementById('pageSlider');
+      pageSlider.max = pages.length;
+
+      pageSlider.addEventListener('input', (e) => {
+        pageFlip.flip(parseInt(e.target.value) - 1);
+      });
+
+      pageFlip.on('flip', (e) => {
+        pageSlider.value = e.data + 1;
+      });
+    } else {
+      console.error('PageFlip library not loaded properly.');
+    }
+  });
+</script>
 
 </body>
 </html>
