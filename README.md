@@ -52,7 +52,7 @@ index.html
 
 ## Exporting Page Images
 
-Page images must be exported from the source PDF at **200 DPI** to render sharply on Retina/HiDPI displays. This produces 1700×2200px PNGs. Do not use lower-resolution exports — they will appear blurry in the flipbook viewer.
+Page images must be exported from the source PDF at **150 DPI** to balance sharpness on Retina/HiDPI displays with reasonable load times. This produces 1275×1650px PNGs. Do not use lower-resolution exports — they will appear blurry in the flipbook viewer.
 
 **Install poppler** (one-time):
 
@@ -63,7 +63,7 @@ brew install poppler
 **Export a catalog year:**
 
 ```bash
-pdftoppm -png -r 200 assets/{year}_catalog.pdf assets/page-images/{year}/page
+pdftoppm -png -r 150 assets/{year}_catalog.pdf assets/page-images/{year}/page
 ```
 
 This creates files named `page-01.png`, `page-02.png`, etc. Rename them to the `page_N.png` convention the viewer expects:
