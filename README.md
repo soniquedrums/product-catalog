@@ -34,8 +34,8 @@ index.html
 
 ## Adding a New Year
 
-1. Export each catalog page as a PNG and place it in `/assets/page-images/{year}/`, named `page_1.png`, `page_2.png`, etc.
-2. Place the full PDF in `/assets/` as `{year}_catalog.pdf`.
+1. Place the PDF in `/assets/` as `{year}_catalog.pdf`.
+2. Export the PDF pages as PNGs at 200 DPI using poppler (see [Exporting Page Images](#exporting-page-images) below).
 3. Update `pageCountMapping` in `index.html`:
 
    ```javascript
@@ -50,9 +50,39 @@ index.html
 
 ---
 
+## Exporting Page Images
+
+Page images must be exported from the source PDF at **200 DPI** to render sharply on Retina/HiDPI displays. This produces 1700×2200px PNGs. Do not use lower-resolution exports — they will appear blurry in the flipbook viewer.
+
+**Install poppler** (one-time):
+
+```bash
+brew install poppler
+```
+
+**Export a catalog year:**
+
+```bash
+pdftoppm -png -r 200 assets/{year}_catalog.pdf assets/page-images/{year}/page
+```
+
+This creates files named `page-01.png`, `page-02.png`, etc. Rename them to the `page_N.png` convention the viewer expects:
+
+```bash
+for f in assets/page-images/{year}/page-*.png; do
+  num=$(basename "$f" | grep -o '[0-9]*' | sed 's/^0*//')
+  mv "$f" "assets/page-images/{year}/page_${num}.png"
+done
+```
+
+Replace `{year}` with the actual year in both commands.
+
+---
+
 ## Dependencies
 
 - [PageFlip.js](https://github.com/Nodlik/StPageFlip) — loaded via CDN, no build step required.
+- [poppler](https://poppler.freedesktop.org/) — used locally to export PDFs to PNG; install via `brew install poppler`.
 
 ---
 
