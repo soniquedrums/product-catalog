@@ -1,119 +1,91 @@
-# 🥁 Product Catalog Flipbook
+# Sonique Product Catalog
 
-![License](https://img.shields.io/badge/License-MIT-blue.svg) ![Made with PageFlip](https://img.shields.io/badge/Made%20with-PageFlip.js-orange) ![Version](https://img.shields.io/badge/version-1.0.0-brightgreen)
-
-This project is a simple and responsive **digital flipbook viewer** for product catalogs, using [PageFlip.js](https://github.com/Nodlik/StPageFlip).
-
-It dynamically loads PNG pages from a GitHub Pages repository based on the selected year (passed via the URL), and allows smooth navigation through the catalog with **page sliders** and **zoom controls**.
+A browser-based digital flipbook for viewing Sonique product catalogs by year. Built with [PageFlip.js](https://github.com/Nodlik/StPageFlip) and hosted on GitHub Pages.
 
 ---
 
-## 📚 Table of Contents
+## How It Works
 
-- 🎯 [Features](#-features)
-- 🗂️ [File Structure](#-file-structure)
-- 🚀 [How to Use](#-how-to-use)
-- ⚙️ [Configuration Details](#-configuration-details)
-- 🧰 [Dependencies](#-dependencies)
-- 📋 [To-Do / Future Improvements](#-to-do--future-improvements)
-- 🏗️ [Example Usage](#-example-usage)
-- 📜 [License](#-license)
+Each catalog year is stored as individual PNG page images under `/assets/page-images/{year}/`. The viewer loads the correct year from a URL query parameter:
 
----
+```
+https://soniquedrums.github.io/product-catalog/?year=2026
+```
 
-## ✨ Features
-
-- 📖 Realistic page-flip animations
-- 📱 Mobile and desktop responsive
-- 🖼️ Dynamic image loading based on the selected year
-- 🎚️ Page slider for easy navigation
-- 💨 Optimized loading for better performance
-- 🛠️ No build tools needed — pure HTML, CSS, and JavaScript
+Pages can be navigated using the slider at the bottom. The full PDF can be downloaded from the same control bar.
 
 ---
 
-## 🗂️ File Structure
+## File Structure
 
-```plaintext
-/assets/page-images/{year}/page_{n}.png
+```
+assets/
+  page-images/
+    2024/   page_1.png … page_16.png
+    2025/   page_1.png … page_24.png
+    2026/   page_1.png … page_24.png
+  2024_catalog.pdf
+  2025_catalog.pdf
+  2026_catalog.pdf
 index.html
-README.md
 ```
 
-- Images for each catalog year are organized in folders named after the year.
-- The main flipbook functionality is handled inside `index.html`.
-
 ---
 
-## 🚀 How to Use
+## Adding a New Year
 
-1. **Host the files** using GitHub Pages or any static hosting service.
-2. **Upload catalog images** to `/assets/page-images/{year}/` folders.
-   
-   Example:
-   ```plaintext
-   /assets/page-images/2025/page_1.png
-   /assets/page-images/2025/page_2.png
+1. Place the PDF in `/assets/` as `{year}_catalog.pdf`.
+2. Export the PDF pages as PNGs at 200 DPI using poppler (see [Exporting Page Images](#exporting-page-images) below).
+3. Update `pageCountMapping` in `index.html`:
+
+   ```javascript
+   const pageCountMapping = {
+     '2026': 24,
+     '2025': 24,
+     '2024': 16,
+   };
    ```
-3. **Access the flipbook** by visiting a URL with a `year` query parameter:
 
-   Example:
-   ```
-   https://your-domain.com/index.html?year=2025
-   ```
-4. **Navigate between pages** using the page slider.
-5. **Use the zoom buttons** to zoom in and out.
+4. Commit and push to `main`. GitHub Actions deploys automatically.
 
 ---
 
-## ⚙️ Configuration Details
+## Exporting Page Images
 
-- The total page count for each year is manually set in the JavaScript:
+Page images must be exported from the source PDF at **200 DPI** to render sharply on Retina/HiDPI displays. This produces 1700×2200px PNGs. Do not use lower-resolution exports — they will appear blurry in the flipbook viewer.
 
-  ```javascript
-  const pageCountMapping = {
-    '2025': 24,
-    '2024': 16,
-  };
-  ```
+**Install poppler** (one-time):
 
-- Update the `pageCountMapping` whenever you add a new catalog.
-
-- Images are dynamically loaded based on the year specified in the URL.
-
----
-
-## 🧰 Dependencies
-
-- [PageFlip.js](https://github.com/Nodlik/StPageFlip) (via CDN)
-
-No additional libraries or frameworks are needed.
-
----
-
-## 📋 To-Do / Future Improvements
-
-- [ ] Add swipe gesture support for better mobile experience
-- [ ] Add zoom in and out buttons
-- [ ] Add a "Reset Zoom" button
-- [ ] Display "Page X of Y" counter
-- [ ] Preload pages for faster flipping
-- [ ] Add a loading spinner while pages are loading
-
----
-
-## 🏗️ Example Usage
-
-Visit:
-
-```
-https://soniquedrums.github.io/product-catalog/index.html?year=2025
+```bash
+brew install poppler
 ```
 
-To view the 2025 catalog.
+**Export a catalog year:**
+
+```bash
+pdftoppm -png -r 200 assets/{year}_catalog.pdf assets/page-images/{year}/page
+```
+
+This creates files named `page-01.png`, `page-02.png`, etc. Rename them to the `page_N.png` convention the viewer expects:
+
+```bash
+for f in assets/page-images/{year}/page-*.png; do
+  num=$(basename "$f" | grep -o '[0-9]*' | sed 's/^0*//')
+  mv "$f" "assets/page-images/{year}/page_${num}.png"
+done
+```
+
+Replace `{year}` with the actual year in both commands.
 
 ---
 
-## 📜 License
+## Dependencies
 
-This project uses [PageFlip.js](https://github.com/Nodlik/StPageFlip) under its respective open-source license.
+- [PageFlip.js](https://github.com/Nodlik/StPageFlip) — loaded via CDN, no build step required.
+- [poppler](https://poppler.freedesktop.org/) — used locally to export PDFs to PNG; install via `brew install poppler`.
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE).
