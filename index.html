@@ -24,8 +24,9 @@
       position: absolute;
       top: 0;
       left: 0;
+      right: 0;
+      bottom: 60px;
       background: #ffffff;
-      transform-origin: top left;
     }
 
     #controls {
@@ -107,33 +108,16 @@
       return;
     }
 
-    const flipbookWidth = 1275;
-    const flipbookHeight = 1650;
-
-    flipbookElement.style.width = `${flipbookWidth * 2}px`;
-    flipbookElement.style.height = `${flipbookHeight}px`;
-
-    const scale = Math.min(
-      window.innerWidth / (flipbookWidth * 2),
-      (window.innerHeight - 60) / flipbookHeight
-    );
-
-    flipbookElement.style.transform = `scale(${scale})`;
-
     if (typeof St !== 'undefined' && St.PageFlip) {
       const pageFlip = new St.PageFlip(flipbookElement, {
-        width: flipbookWidth,
-        height: flipbookHeight,
-        size: 'fixed',
-        minWidth: 315,
-        minHeight: 400,
-        maxWidth: 2000,
-        maxHeight: 3000,
+        width: 1275,
+        height: 1650,
+        size: 'stretch',
         showCover: true,
         flippingTime: 700,
         mobileScrollSupport: true,
         useMouseEvents: true,
-        autoSize: false,
+        autoSize: true,
         clickEventForward: true,
         usePortrait: false,
       });
