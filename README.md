@@ -1,119 +1,61 @@
-# 🥁 Product Catalog Flipbook
+# Sonique Product Catalog
 
-![License](https://img.shields.io/badge/License-MIT-blue.svg) ![Made with PageFlip](https://img.shields.io/badge/Made%20with-PageFlip.js-orange) ![Version](https://img.shields.io/badge/version-1.0.0-brightgreen)
-
-This project is a simple and responsive **digital flipbook viewer** for product catalogs, using [PageFlip.js](https://github.com/Nodlik/StPageFlip).
-
-It dynamically loads PNG pages from a GitHub Pages repository based on the selected year (passed via the URL), and allows smooth navigation through the catalog with **page sliders** and **zoom controls**.
+A browser-based digital flipbook for viewing Sonique product catalogs by year. Built with [PageFlip.js](https://github.com/Nodlik/StPageFlip) and hosted on GitHub Pages.
 
 ---
 
-## 📚 Table of Contents
+## How It Works
 
-- 🎯 [Features](#-features)
-- 🗂️ [File Structure](#-file-structure)
-- 🚀 [How to Use](#-how-to-use)
-- ⚙️ [Configuration Details](#-configuration-details)
-- 🧰 [Dependencies](#-dependencies)
-- 📋 [To-Do / Future Improvements](#-to-do--future-improvements)
-- 🏗️ [Example Usage](#-example-usage)
-- 📜 [License](#-license)
+Each catalog year is stored as individual PNG page images under `/assets/page-images/{year}/`. The viewer loads the correct year from a URL query parameter:
 
----
+```
+https://soniquedrums.github.io/product-catalog/?year=2026
+```
 
-## ✨ Features
-
-- 📖 Realistic page-flip animations
-- 📱 Mobile and desktop responsive
-- 🖼️ Dynamic image loading based on the selected year
-- 🎚️ Page slider for easy navigation
-- 💨 Optimized loading for better performance
-- 🛠️ No build tools needed — pure HTML, CSS, and JavaScript
+Pages can be navigated using the slider at the bottom. The full PDF can be downloaded from the same control bar.
 
 ---
 
-## 🗂️ File Structure
+## File Structure
 
-```plaintext
-/assets/page-images/{year}/page_{n}.png
+```
+assets/
+  page-images/
+    2024/   page_1.png … page_16.png
+    2025/   page_1.png … page_24.png
+    2026/   page_1.png … page_24.png
+  2024_catalog.pdf
+  2025_catalog.pdf
+  2026_catalog.pdf
 index.html
-README.md
 ```
 
-- Images for each catalog year are organized in folders named after the year.
-- The main flipbook functionality is handled inside `index.html`.
-
 ---
 
-## 🚀 How to Use
+## Adding a New Year
 
-1. **Host the files** using GitHub Pages or any static hosting service.
-2. **Upload catalog images** to `/assets/page-images/{year}/` folders.
-   
-   Example:
-   ```plaintext
-   /assets/page-images/2025/page_1.png
-   /assets/page-images/2025/page_2.png
+1. Export each catalog page as a PNG and place it in `/assets/page-images/{year}/`, named `page_1.png`, `page_2.png`, etc.
+2. Place the full PDF in `/assets/` as `{year}_catalog.pdf`.
+3. Update `pageCountMapping` in `index.html`:
+
+   ```javascript
+   const pageCountMapping = {
+     '2026': 24,
+     '2025': 24,
+     '2024': 16,
+   };
    ```
-3. **Access the flipbook** by visiting a URL with a `year` query parameter:
 
-   Example:
-   ```
-   https://your-domain.com/index.html?year=2025
-   ```
-4. **Navigate between pages** using the page slider.
-5. **Use the zoom buttons** to zoom in and out.
+4. Commit and push to `main`. GitHub Actions deploys automatically.
 
 ---
 
-## ⚙️ Configuration Details
+## Dependencies
 
-- The total page count for each year is manually set in the JavaScript:
-
-  ```javascript
-  const pageCountMapping = {
-    '2025': 24,
-    '2024': 16,
-  };
-  ```
-
-- Update the `pageCountMapping` whenever you add a new catalog.
-
-- Images are dynamically loaded based on the year specified in the URL.
+- [PageFlip.js](https://github.com/Nodlik/StPageFlip) — loaded via CDN, no build step required.
 
 ---
 
-## 🧰 Dependencies
+## License
 
-- [PageFlip.js](https://github.com/Nodlik/StPageFlip) (via CDN)
-
-No additional libraries or frameworks are needed.
-
----
-
-## 📋 To-Do / Future Improvements
-
-- [ ] Add swipe gesture support for better mobile experience
-- [ ] Add zoom in and out buttons
-- [ ] Add a "Reset Zoom" button
-- [ ] Display "Page X of Y" counter
-- [ ] Preload pages for faster flipping
-- [ ] Add a loading spinner while pages are loading
-
----
-
-## 🏗️ Example Usage
-
-Visit:
-
-```
-https://soniquedrums.github.io/product-catalog/index.html?year=2025
-```
-
-To view the 2025 catalog.
-
----
-
-## 📜 License
-
-This project uses [PageFlip.js](https://github.com/Nodlik/StPageFlip) under its respective open-source license.
+MIT — see [LICENSE](LICENSE).
