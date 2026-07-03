@@ -7,8 +7,6 @@
   <!-- Standard PNG favicon -->
   <link rel="icon" type="image/png" href="https://soniquedrums.github.io/product-catalog/assets/s-favicon.png">
 
-  <!-- ICO fallback for desktop browsers -->
-  <link rel="icon-2" type="image/x-icon" href="https://soniquedrums.github.io/product-catalog/assets/s-favicon.ico">
   
   <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>  
 
@@ -101,13 +99,10 @@
     }
 
     const imagePrefix = `https://soniquedrums.github.io/product-catalog/assets/page-images/${selectedYear}/page_`;
-    const version = '?';
 
     const pages = [];
     for (let i = 1; i <= totalPages; i++) {
-      const img = new Image();
-      img.src = `${imagePrefix}${i}.png${version}`;
-      pages.push(img);
+      pages.push(`${imagePrefix}${i}.png`);
     }
 
     const flipbookElement = document.getElementById('flipbook');
@@ -144,7 +139,7 @@
         usePortrait: true,
       });
 
-      pageFlip.loadFromImages(pages.map(p => p.src));
+      pageFlip.loadFromImages(pages);
 
       // Download Current Page
       document.getElementById('downloadPageBtn').addEventListener('click', function () {
