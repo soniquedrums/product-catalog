@@ -21,10 +21,6 @@
     }
 
     #flipbook {
-      width: 100vw;
-      height: 100vh;
-      max-width: 2000px;
-      margin: 0 auto;
       position: absolute;
       top: 0;
       left: 0;
@@ -114,8 +110,11 @@
     const flipbookWidth = 1700;
     const flipbookHeight = 2200;
 
+    flipbookElement.style.width = `${flipbookWidth * 2}px`;
+    flipbookElement.style.height = `${flipbookHeight}px`;
+
     const scale = Math.min(
-      window.innerWidth / flipbookWidth,
+      window.innerWidth / (flipbookWidth * 2),
       (window.innerHeight - 60) / flipbookHeight
     );
 
