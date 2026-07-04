@@ -1,6 +1,6 @@
 # Sonique Product Catalog
 
-A browser-based digital flipbook for viewing Sonique product catalogs by year. Built with [PageFlip.js](https://github.com/Nodlik/StPageFlip) and hosted on GitHub Pages.
+A browser-based digital flipbook for viewing Sonique product catalogs by year. Built with [Turn.js](https://github.com/blasten/turn.js) and hosted on GitHub Pages.
 
 ---
 
@@ -21,9 +21,9 @@ Pages can be navigated using the slider at the bottom. The full PDF can be downl
 ```
 assets/
   page-images/
-    2024/   page_1.png … page_16.png
-    2025/   page_1.png … page_24.png
-    2026/   page_1.png … page_24.png
+    2024/   page_1.webp … page_16.webp
+    2025/   page_1.webp … page_24.webp
+    2026/   page_1.webp … page_24.webp
   2024_catalog.pdf
   2025_catalog.pdf
   2026_catalog.pdf
@@ -35,7 +35,7 @@ index.html
 ## Adding a New Year
 
 1. Place the PDF in `/assets/` as `{year}_catalog.pdf`.
-2. Export the PDF pages as PNGs at 200 DPI using poppler (see [Exporting Page Images](#exporting-page-images) below).
+2. Export the PDF pages as WebP images at 150 DPI using poppler + cwebp (see [Exporting Page Images](#exporting-page-images) below).
 3. Update `pageCountMapping` in `index.html`:
 
    ```javascript
@@ -52,37 +52,36 @@ index.html
 
 ## Exporting Page Images
 
-Page images must be exported from the source PDF at **150 DPI** to balance sharpness on Retina/HiDPI displays with reasonable load times. This produces 1275×1650px PNGs. Do not use lower-resolution exports — they will appear blurry in the flipbook viewer.
+Page images are stored as WebP at **150 DPI** (1275×1650px). WebP provides 70-75% smaller files than PNG at the same quality, which significantly reduces load time. Use the **print-quality** PDF as the source when extracting — the web-quality PDF uses lossy compression that will degrade image quality if re-extracted.
 
-**Install poppler** (one-time):
+**Install dependencies** (one-time):
 
 ```bash
-brew install poppler
+brew install poppler webp
 ```
 
-**Export a catalog year:**
+**Export and convert a catalog year:**
 
 ```bash
-pdftoppm -png -r 150 assets/{year}_catalog.pdf assets/page-images/{year}/page
-```
+# Extract pages as PNG (150 DPI = 1275×1650px)
+pdftoppm -png -r 150 assets/{year}_catalog.pdf /tmp/{year}_pages/page
 
-This creates files named `page-01.png`, `page-02.png`, etc. Rename them to the `page_N.png` convention the viewer expects:
-
-```bash
-for f in assets/page-images/{year}/page-*.png; do
-  num=$(basename "$f" | grep -o '[0-9]*' | sed 's/^0*//')
-  mv "$f" "assets/page-images/{year}/page_${num}.png"
+# Convert each PNG to WebP at high quality
+for f in /tmp/{year}_pages/page-*.png; do
+  num=$(basename "$f" .png | grep -oE '[0-9]+' | sed 's/^0*//')
+  cwebp -q 90 -sharp_yuv "$f" -o "assets/page-images/{year}/page_${num}.webp"
 done
 ```
 
-Replace `{year}` with the actual year in both commands.
+Replace `{year}` with the actual year. The `cwebp -q 90 -sharp_yuv` flags preserve text sharpness at high quality.
 
 ---
 
 ## Dependencies
 
-- [PageFlip.js](https://github.com/Nodlik/StPageFlip) — loaded via CDN, no build step required.
-- [poppler](https://poppler.freedesktop.org/) — used locally to export PDFs to PNG; install via `brew install poppler`.
+- [Turn.js](https://github.com/blasten/turn.js) + jQuery 2.x — CSS 3D flip renderer; loaded via CDN, no build step required. Uses CSS `rotateY` on `<img>` elements so the browser renders pages at native Retina resolution (unlike canvas-based flipbook libraries).
+- [poppler](https://poppler.freedesktop.org/) — used locally to export PDFs to intermediate PNG; install via `brew install poppler`.
+- [libwebp](https://developers.google.com/speed/webp) — `cwebp` converts the extracted PNGs to WebP; install via `brew install webp`.
 
 ---
 
