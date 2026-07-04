@@ -33,12 +33,12 @@
       position: relative;
     }
 
-    #flipbook > div {
+    #flipbook .page {
       background: #fff;
       overflow: hidden;
     }
 
-    #flipbook > div img {
+    #flipbook .page img {
       width: 100%;
       height: 100%;
       object-fit: contain;
@@ -126,17 +126,16 @@
       pages.push(`${imagePrefix}${i}.webp`);
     }
 
-    // Compute book dimensions maintaining the 1275:1650 page aspect ratio
-    const $viewport = $('#viewport');
-    const containerW = $viewport.width();
-    const containerH = $viewport.height();
+    // Book dimensions: maintain the 1275:1650 source aspect ratio
+    const viewportW = window.innerWidth;
+    const viewportH = window.innerHeight - 60;
     const pageAspect = 1650 / 1275;
 
-    let pageW = Math.floor(containerW / 2);
+    let pageW = Math.floor(viewportW / 2);
     let pageH = Math.round(pageW * pageAspect);
 
-    if (pageH > containerH) {
-      pageH = containerH;
+    if (pageH > viewportH) {
+      pageH = viewportH;
       pageW = Math.round(pageH / pageAspect);
     }
 
@@ -146,24 +145,11 @@
     const $book = $('#flipbook');
     $book.css({ width: bookW, height: bookH });
 
-    // Add page divs with data-src — images are loaded on demand, not all at once
+    // Add pages with src set directly — Turn.js restructures the DOM after init
+    // so data-src lazy loading breaks; let the browser load images naturally instead
     pages.forEach((url) => {
-      $('<div><img data-src="' + url + '" /></div>').appendTo($book);
+      $('<div class="page"><img src="' + url + '" /></div>').appendTo($book);
     });
-
-    function loadPageImg(zeroIndex) {
-      if (zeroIndex < 0 || zeroIndex >= pages.length) return;
-      const $img = $book.children().eq(zeroIndex).find('img');
-      if (!$img.attr('src')) $img.attr('src', pages[zeroIndex]);
-    }
-
-    function loadSpread(turnPage) {
-      // Load current spread and the next two spreads (6 pages)
-      [-1, 0, 1, 2, 3, 4].forEach(offset => loadPageImg(turnPage - 1 + offset));
-    }
-
-    // Load the first two spreads before initializing
-    loadSpread(1);
 
     $book.turn({
       width: bookW,
@@ -176,10 +162,20 @@
       when: {
         turned: function (e, page) {
           document.getElementById('pageSlider').value = page;
-          loadSpread(page + 2);
         }
       }
     });
+
+    // Turn.js only responds to corner drags by default; add full-page click-to-flip
+    let wasDragging = false;
+    $book
+      .on('mousedown', function () { wasDragging = false; })
+      .on('mousemove', function () { wasDragging = true; })
+      .on('click', function (e) {
+        if (wasDragging) { wasDragging = false; return; }
+        const x = e.pageX - $book.offset().left;
+        $book.turn(x < bookW / 2 ? 'previous' : 'next');
+      });
 
     const pageSlider = document.getElementById('pageSlider');
     pageSlider.max = totalPages;
