@@ -99,8 +99,21 @@
 
     const pages = [];
     for (let i = 1; i <= totalPages; i++) {
-      pages.push(`${imagePrefix}${i}.png`);
+      pages.push(`${imagePrefix}${i}.webp`);
     }
+
+    function preloadSpread(centerIndex) {
+      // Load the spread containing centerIndex plus the next spread
+      const start = Math.max(0, centerIndex - 1);
+      const end = Math.min(pages.length - 1, centerIndex + 3);
+      for (let i = start; i <= end; i++) {
+        const img = new Image();
+        img.src = pages[i];
+      }
+    }
+
+    // Prime the first two spreads immediately
+    preloadSpread(0);
 
     const flipbookElement = document.getElementById('flipbook');
     if (!flipbookElement) {
@@ -157,6 +170,7 @@
 
       pageFlip.on('flip', (e) => {
         pageSlider.value = e.data + 1;
+        preloadSpread(e.data + 2);
       });
     } else {
       console.error('PageFlip library not loaded properly.');
