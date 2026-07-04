@@ -1,6 +1,6 @@
 # Sonique Product Catalog
 
-A browser-based digital flipbook for viewing Sonique product catalogs by year. Built with [PageFlip.js](https://github.com/Nodlik/StPageFlip) and hosted on GitHub Pages.
+A browser-based digital flipbook for viewing Sonique product catalogs by year. Built with [Turn.js](https://github.com/blasten/turn.js) and hosted on GitHub Pages.
 
 ---
 
@@ -79,7 +79,7 @@ Replace `{year}` with the actual year. The `cwebp -q 90 -sharp_yuv` flags preser
 
 ## Dependencies
 
-- [PageFlip.js](https://github.com/Nodlik/StPageFlip) — loaded via CDN, no build step required.
+- [Turn.js](https://github.com/blasten/turn.js) + jQuery 2.x — CSS 3D flip renderer; loaded via CDN, no build step required. Uses CSS `rotateY` on `<img>` elements so the browser renders pages at native Retina resolution (unlike canvas-based flipbook libraries).
 - [poppler](https://poppler.freedesktop.org/) — used locally to export PDFs to intermediate PNG; install via `brew install poppler`.
 - [libwebp](https://developers.google.com/speed/webp) — `cwebp` converts the extracted PNGs to WebP; install via `brew install webp`.
 

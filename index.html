@@ -4,11 +4,10 @@
   <meta charset="UTF-8">
   <title>Sonique Product Catalog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Standard PNG favicon -->
   <link rel="icon" type="image/png" href="https://soniquedrums.github.io/product-catalog/assets/s-favicon.png">
 
-  
-  <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>  
+  <script src="https://cdn.jsdelivr.net/npm/jquery@2.2.4/dist/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/turn.js@3.0.0/turn.min.js"></script>
 
   <style>
     html, body {
@@ -16,17 +15,34 @@
       padding: 0;
       height: 100%;
       overflow: hidden;
-      background: #ffffff;
-      color: #ffffff;
+      background: #1a1a1a;
     }
 
-    #flipbook {
+    #viewport {
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
       bottom: 60px;
-      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #flipbook {
+      position: relative;
+    }
+
+    #flipbook > div {
+      background: #fff;
+      overflow: hidden;
+    }
+
+    #flipbook > div img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
     }
 
     #controls {
@@ -48,7 +64,8 @@
       width: 70%;
     }
 
-    #downloadPageBtn {
+    #downloadPageBtn,
+    #downloadPdfBtn {
       background: #222;
       color: white;
       padding: 8px 12px;
@@ -58,10 +75,10 @@
       cursor: pointer;
     }
 
-    #downloadPageBtn:hover {
+    #downloadPageBtn:hover,
+    #downloadPdfBtn:hover {
       background: #444;
     }
-
   </style>
 </head>
 <body>
@@ -71,10 +88,17 @@
   <button id="downloadPageBtn">Download Current Page</button>
   <button id="downloadPdfBtn">Download Full Catalog</button>
 </div>
-<div id="flipbook"></div>
+<div id="viewport">
+  <div id="flipbook"></div>
+</div>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function () {
+  $(function () {
+    if (!$.fn.turn) {
+      console.error('Turn.js not loaded.');
+      return;
+    }
+
     const urlParams = new URLSearchParams(window.location.search);
     const selectedYear = urlParams.get('year');
 
@@ -102,79 +126,88 @@
       pages.push(`${imagePrefix}${i}.webp`);
     }
 
-    function preloadSpread(centerIndex) {
-      // Load the spread containing centerIndex plus the next spread
-      const start = Math.max(0, centerIndex - 1);
-      const end = Math.min(pages.length - 1, centerIndex + 3);
-      for (let i = start; i <= end; i++) {
-        const img = new Image();
-        img.src = pages[i];
+    // Compute book dimensions maintaining the 1275:1650 page aspect ratio
+    const $viewport = $('#viewport');
+    const containerW = $viewport.width();
+    const containerH = $viewport.height();
+    const pageAspect = 1650 / 1275;
+
+    let pageW = Math.floor(containerW / 2);
+    let pageH = Math.round(pageW * pageAspect);
+
+    if (pageH > containerH) {
+      pageH = containerH;
+      pageW = Math.round(pageH / pageAspect);
+    }
+
+    const bookW = pageW * 2;
+    const bookH = pageH;
+
+    const $book = $('#flipbook');
+    $book.css({ width: bookW, height: bookH });
+
+    // Add page divs with data-src — images are loaded on demand, not all at once
+    pages.forEach((url) => {
+      $('<div><img data-src="' + url + '" /></div>').appendTo($book);
+    });
+
+    function loadPageImg(zeroIndex) {
+      if (zeroIndex < 0 || zeroIndex >= pages.length) return;
+      const $img = $book.children().eq(zeroIndex).find('img');
+      if (!$img.attr('src')) $img.attr('src', pages[zeroIndex]);
+    }
+
+    function loadSpread(turnPage) {
+      // Load current spread and the next two spreads (6 pages)
+      [-1, 0, 1, 2, 3, 4].forEach(offset => loadPageImg(turnPage - 1 + offset));
+    }
+
+    // Load the first two spreads before initializing
+    loadSpread(1);
+
+    $book.turn({
+      width: bookW,
+      height: bookH,
+      autoCenter: true,
+      display: 'double',
+      acceleration: true,
+      gradients: true,
+      elevation: 50,
+      when: {
+        turned: function (e, page) {
+          document.getElementById('pageSlider').value = page;
+          loadSpread(page + 2);
+        }
       }
-    }
+    });
 
-    // Prime the first two spreads immediately
-    preloadSpread(0);
+    const pageSlider = document.getElementById('pageSlider');
+    pageSlider.max = totalPages;
 
-    const flipbookElement = document.getElementById('flipbook');
-    if (!flipbookElement) {
-      console.error('#flipbook element not found.');
-      return;
-    }
+    pageSlider.addEventListener('input', function (e) {
+      $book.turn('page', parseInt(e.target.value));
+    });
 
-    if (typeof St !== 'undefined' && St.PageFlip) {
-      const pageFlip = new St.PageFlip(flipbookElement, {
-        width: 1275,
-        height: 1650,
-        size: 'stretch',
-        showCover: true,
-        flippingTime: 700,
-        mobileScrollSupport: true,
-        useMouseEvents: true,
-        autoSize: true,
-        clickEventForward: true,
-        usePortrait: false,
-      });
+    document.getElementById('downloadPageBtn').addEventListener('click', function () {
+      const page = $book.turn('page');
+      const url = pages[page - 1];
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `catalog-page-${page}.webp`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    });
 
-      pageFlip.loadFromImages(pages);
-
-      // Download Current Page
-      document.getElementById('downloadPageBtn').addEventListener('click', function () {
-        const currentPage = pageFlip.getCurrentPageIndex() + 1;
-        const pageUrl = `${imagePrefix}${currentPage}.png`;
-
-        const a = document.createElement('a');
-        a.href = pageUrl;
-        a.download = `catalog-page-${currentPage}.png`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      });
-
-      // Download Entire Catalog
-      document.getElementById('downloadPdfBtn').addEventListener('click', function () {
-        const pdfUrl = `https://soniquedrums.github.io/product-catalog/assets/${selectedYear}_catalog.pdf`;
-        const a = document.createElement('a');
-        a.href = pdfUrl;
-        a.download = `Sonique-Product-Catalog-${selectedYear}.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      });
-
-      const pageSlider = document.getElementById('pageSlider');
-      pageSlider.max = pages.length;
-
-      pageSlider.addEventListener('input', (e) => {
-        pageFlip.flip(parseInt(e.target.value) - 1);
-      });
-
-      pageFlip.on('flip', (e) => {
-        pageSlider.value = e.data + 1;
-        preloadSpread(e.data + 2);
-      });
-    } else {
-      console.error('PageFlip library not loaded properly.');
-    }
+    document.getElementById('downloadPdfBtn').addEventListener('click', function () {
+      const pdfUrl = `https://soniquedrums.github.io/product-catalog/assets/${selectedYear}_catalog.pdf`;
+      const a = document.createElement('a');
+      a.href = pdfUrl;
+      a.download = `Sonique-Product-Catalog-${selectedYear}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    });
   });
 </script>
 
